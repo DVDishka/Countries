@@ -1,0 +1,23 @@
+name: Countries
+version: '${project.version}'
+main: dvdcraft.countries.Countries
+api-version: 1.18
+prefix: countries
+authors: [ dvdishka ]
+description: Countries plugin
+commands:
+  createCountry:
+    description: Creates new country
+    usage: /<command> name
+  addMember:
+    description: Adds new member to your country
+    usage: /<command> [player]
+  removeMember:
+    description: Removes member of your country
+    usage: /<command> [player]
+  getCountry:
+    description: Sends the player`s country
+    usage: /<command> [player]
+  getStatus:
+    description: Sends the country status
+    usage: /<command>
