@@ -37,7 +37,7 @@ public class CommandExecutor implements org.bukkit.command.CommandExecutor {
         if (commandName.equals("addMember") && args.length == 1) {
             Player member = Bukkit.getPlayer(args[0]);
             if (member == null) {
-                sender.sendMessage(ChatColor.RED + "There are no player with that name!");
+                sender.sendMessage(ChatColor.RED + "There is no player with that name!");
                 return true;
             } else {
                 Country country = Country.getCountry(player.getName());
@@ -84,7 +84,7 @@ public class CommandExecutor implements org.bukkit.command.CommandExecutor {
         if (commandName.equals("getCountry") && args.length == 1) {
             Player member = Bukkit.getPlayer(args[0]);
             if (member == null) {
-                sender.sendMessage(ChatColor.RED + "There are no player with that name on the server!");
+                sender.sendMessage(ChatColor.RED + "There is no player with that name!");
                 return true;
             }
             Country country = Country.getCountry(member.getName());
