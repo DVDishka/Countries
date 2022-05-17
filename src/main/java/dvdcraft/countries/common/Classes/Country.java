@@ -1,9 +1,9 @@
-package dvdcraft.countries.common;
+package dvdcraft.countries.common.Classes;
 
+import dvdcraft.countries.common.CommonVariables;
 import org.bukkit.entity.Player;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.HashSet;
 
 public class Country implements Serializable {
@@ -29,6 +29,10 @@ public class Country implements Serializable {
 
     public void removeMember(Player member) {
         this.members.remove(member);
+    }
+
+    public void addTerritory(Territory territory) {
+        this.territories.add(territory);
     }
 
     public void removeMember(String name) {

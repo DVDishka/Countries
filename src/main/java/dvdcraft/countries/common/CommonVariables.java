@@ -1,5 +1,7 @@
 package dvdcraft.countries.common;
 
+import dvdcraft.countries.common.Classes.Country;
+
 import java.util.HashSet;
 import java.util.logging.Logger;
 

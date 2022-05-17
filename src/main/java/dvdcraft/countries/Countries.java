@@ -4,9 +4,10 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import dvdcraft.countries.common.CommonVariables;
-import dvdcraft.countries.common.Country;
+import dvdcraft.countries.common.Classes.Country;
 import dvdcraft.countries.common.FileDir;
-import dvdcraft.countries.executors_handlers.CommandExecutor;
+import dvdcraft.countries.executorsHandlers.CommandExecutor;
+import dvdcraft.countries.territoryCheckThread.Check;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.BufferedReader;
@@ -51,12 +52,14 @@ public final class Countries extends JavaPlugin {
         } catch (Exception e) {
             CommonVariables.logger.warning("Can not read JSON file!");
         }
+        new Check("Check").start();
         CommandExecutor commandExecutor = new CommandExecutor();
         getCommand("createCountry").setExecutor(commandExecutor);
         getCommand("addMember").setExecutor(commandExecutor);
         getCommand("removeMember").setExecutor(commandExecutor);
         getCommand("getCountry").setExecutor(commandExecutor);
         getCommand("getStatus").setExecutor(commandExecutor);
+        getCommand("addTerritory").setExecutor(commandExecutor);
 
         CommonVariables.logger.info("Plugin has been enabled");
     }

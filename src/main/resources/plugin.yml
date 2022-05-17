@@ -21,3 +21,6 @@ commands:
   getStatus:
     description: Sends the country status
     usage: /<command>
+  addTerritory:
+    description: Adds territory to your country
+    usage: /<command> fromX toX fromZ toZ
