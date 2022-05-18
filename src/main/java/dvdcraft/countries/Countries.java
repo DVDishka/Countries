@@ -7,8 +7,12 @@ import dvdcraft.countries.common.CommonVariables;
 import dvdcraft.countries.common.Classes.Country;
 import dvdcraft.countries.common.FileDir;
 import dvdcraft.countries.executorsHandlers.CommandExecutor;
+import dvdcraft.countries.executorsHandlers.CountryTabCompleter;
 import dvdcraft.countries.territoryCheckThread.Check;
+import org.bukkit.command.PluginCommand;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -54,12 +58,12 @@ public final class Countries extends JavaPlugin {
         }
         new Check("Check").start();
         CommandExecutor commandExecutor = new CommandExecutor();
-        getCommand("createCountry").setExecutor(commandExecutor);
-        getCommand("addMember").setExecutor(commandExecutor);
-        getCommand("removeMember").setExecutor(commandExecutor);
-        getCommand("getCountry").setExecutor(commandExecutor);
-        getCommand("getStatus").setExecutor(commandExecutor);
-        getCommand("addTerritory").setExecutor(commandExecutor);
+        TabCompleter TabCompleter = new CountryTabCompleter();
+
+        PluginCommand countryCommand = getCommand("country");
+
+        countryCommand.setExecutor(commandExecutor);
+        countryCommand.setTabCompleter(TabCompleter);
 
         CommonVariables.logger.info("Plugin has been enabled");
     }
