@@ -1,11 +1,13 @@
 package dvdcraft.countries.executorsHandlers;
 
 import dvdcraft.countries.common.Classes.Country;
+import dvdcraft.countries.common.Classes.Territory;
 import dvdcraft.countries.common.CommonVariables;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.checkerframework.checker.units.qual.A;
+import org.checkerframework.checker.units.qual.C;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -53,6 +55,20 @@ public class CountryTabCompleter implements org.bukkit.command.TabCompleter {
                         }
                     }
                     return list;
+                } else if (args[0].equals("territory") && args[1].equals("remove")) {
+                    ArrayList<String> list = new ArrayList<String>();
+                    Country country = Country.getCountry(sender.getName());
+                    if (country == null) {
+                        list.add("");
+                        return list;
+                    }
+                    for (Territory territory : country.getTerritories()) {
+                        list.add(String.valueOf(territory.getFromX()) + " " + String.valueOf(territory.getFromZ()) + " " +
+                                String.valueOf(territory.getToX()) + " " + String.valueOf(territory.getToZ()));
+                    }
+                    return list;
+                } else {
+                    return Arrays.asList("");
                 }
             }
         }

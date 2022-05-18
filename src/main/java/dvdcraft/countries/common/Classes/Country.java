@@ -23,12 +23,8 @@ public class Country implements Serializable {
         this.territories = territories;
     }
 
-    public void addMember(Player member) {
-        this.members.add(member.getName());
-    }
-
-    public void removeMember(Player member) {
-        this.members.remove(member);
+    public void addMember(String name) {
+        this.members.add(name);
     }
 
     public void addTerritory(Territory territory) {
@@ -36,11 +32,11 @@ public class Country implements Serializable {
     }
 
     public void removeMember(String name) {
-        for (String member : members) {
-            if (member.equals("name")) {
-                this.members.remove(member);
-            }
-        }
+        this.members.remove(name);
+    }
+
+    public void removeTerritory(Territory territory) {
+        this.territories.remove(territory);
     }
 
     public void setLeader(String leader) {

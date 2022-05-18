@@ -29,7 +29,7 @@ public class CommandExecutor implements org.bukkit.command.CommandExecutor {
                 return true;
             }
             Country country = new Country(args[1]);
-            country.addMember(player);
+            country.addMember(player.getName());
             country.setLeader(player.getName());
             sender.sendMessage("country " + args[1] + " has been created!");
             CommonVariables.countries.add(country);
@@ -51,7 +51,7 @@ public class CommandExecutor implements org.bukkit.command.CommandExecutor {
                         sender.sendMessage(ChatColor.RED + "This player is already in the country!");
                         return true;
                     } else {
-                        country.addMember(member);
+                        country.addMember(member.getName());
                         sender.sendMessage(member.getName() + " has been added to " + country.getName());
                         return true;
                     }
@@ -136,8 +136,8 @@ public class CommandExecutor implements org.bukkit.command.CommandExecutor {
             int toZ = 0;
             try {
                 fromX = Integer.parseInt(args[2]);
-                toX = Integer.parseInt(args[3]);
-                fromZ = Integer.parseInt(args[4]);
+                fromZ = Integer.parseInt(args[3]);
+                toX = Integer.parseInt(args[4]);
                 toZ = Integer.parseInt(args[5]);
             } catch (Exception e) {
                 sender.sendMessage("All arguments must be a number");
@@ -159,35 +159,69 @@ public class CommandExecutor implements org.bukkit.command.CommandExecutor {
             for (Country checkCountry : CommonVariables.countries) {
                 for (Territory checkTerritory : checkCountry.getTerritories()) {
                     if (fromX >= checkTerritory.getFromX() && fromX <= checkTerritory.getToX() &&
-                    fromZ >= checkTerritory.getFromZ() && fromZ <= checkTerritory.getToZ() |
-                    toX >= checkTerritory.getFromX() && toX <= checkTerritory.getToX() &&
-                    toZ >= checkTerritory.getFromZ() && toZ <= checkTerritory.getToZ() |
+                            fromZ >= checkTerritory.getFromZ() && fromZ <= checkTerritory.getToZ() |
+                            toX >= checkTerritory.getFromX() && toX <= checkTerritory.getToX() &&
+                            toZ >= checkTerritory.getFromZ() && toZ <= checkTerritory.getToZ() |
 
-                    fromX >= checkTerritory.getFromX() && fromX <= checkTerritory.getToX() &&
-                    toZ >= checkTerritory.getFromZ() && toZ <= checkTerritory.getToZ() |
-                    fromX >= checkTerritory.getFromX() && fromX <= checkTerritory.getToX() &&
-                    toZ >= checkTerritory.getFromZ() && toZ <= checkTerritory.getToZ() |
+                            fromX >= checkTerritory.getFromX() && fromX <= checkTerritory.getToX() &&
+                            toZ >= checkTerritory.getFromZ() && toZ <= checkTerritory.getToZ() |
+                            fromX >= checkTerritory.getFromX() && fromX <= checkTerritory.getToX() &&
+                            toZ >= checkTerritory.getFromZ() && toZ <= checkTerritory.getToZ() |
 
 
-                    checkTerritory.getFromX() >= fromX && checkTerritory.getFromX() <= toX &&
-                    checkTerritory.getFromZ() >= fromZ && checkTerritory.getFromZ() <= toZ |
-                    checkTerritory.getToX() >= fromX && checkTerritory.getToX() <= toX &&
-                    checkTerritory.getToZ() >= fromZ && checkTerritory.getToZ() <= toZ |
+                            checkTerritory.getFromX() >= fromX && checkTerritory.getFromX() <= toX &&
+                            checkTerritory.getFromZ() >= fromZ && checkTerritory.getFromZ() <= toZ |
+                            checkTerritory.getToX() >= fromX && checkTerritory.getToX() <= toX &&
+                            checkTerritory.getToZ() >= fromZ && checkTerritory.getToZ() <= toZ |
 
-                    checkTerritory.getFromX() >= fromX && checkTerritory.getFromX() <= toX &&
-                    checkTerritory.getToZ() >= fromZ && checkTerritory.getToZ() <= toZ |
-                    checkTerritory.getFromX() >= fromX && checkTerritory.getFromX() <= toX &&
-                    checkTerritory.getToZ() >= fromZ && checkTerritory.getToZ() <= toZ) {
+                            checkTerritory.getFromX() >= fromX && checkTerritory.getFromX() <= toX &&
+                            checkTerritory.getToZ() >= fromZ && checkTerritory.getToZ() <= toZ |
+                            checkTerritory.getFromX() >= fromX && checkTerritory.getFromX() <= toX &&
+                            checkTerritory.getToZ() >= fromZ && checkTerritory.getToZ() <= toZ) {
 
                         sender.sendMessage(ChatColor.RED + "this territory belongs to another country");
                         return true;
                     }
                 }
             }
-            Territory territory = new Territory(fromX, toX, fromZ, toZ);
+            Territory territory = new Territory(fromX, fromZ, toX, toZ);
             country.addTerritory(territory);
             sender.sendMessage("Territory was added to your country");
             return true;
+        }
+
+        if (commandName.equals("territory") && args.length == 6 && args[1].equals("remove")) {
+            int fromX = 0;
+            int toX = 0;
+            int fromZ = 0;
+            int toZ = 0;
+            try {
+                fromX = Integer.parseInt(args[2]);
+                fromZ = Integer.parseInt(args[3]);
+                toX = Integer.parseInt(args[4]);
+                toZ = Integer.parseInt(args[5]);
+            } catch (Exception e) {
+                sender.sendMessage("All arguments must be a number");
+                return true;
+            }
+            Country country = Country.getCountry(player.getName());
+            if (country == null) {
+                sender.sendMessage(ChatColor.RED + "You are not in the country!");
+                return true;
+            }
+            if (!country.getCountryLeader().equals(player.getName())) {
+                sender.sendMessage("You are not the leader of the country!");
+                return true;
+            }
+            for (Territory territory : country.getTerritories()) {
+                if (territory.getFromX() == fromX && territory.getToX() == toX &&
+                territory.getFromZ() == fromZ && territory.getToZ() == toZ) {
+                    country.removeTerritory(territory);
+                    sender.sendMessage("Territory has been removed");
+                    return true;
+                }
+            }
+            sender.sendMessage(ChatColor.RED + "It is not territory of your country!");
         }
         return false;
     }

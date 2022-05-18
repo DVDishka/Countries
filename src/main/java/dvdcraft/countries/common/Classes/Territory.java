@@ -11,26 +11,26 @@ public class Territory implements Serializable {
     private int fromZ;
     private int toZ;
 
-    public Territory(int fromX, int toX, int fromZ, int toZ) {
-        this.fromX = fromX;
-        this.toX = toX;
-        this.fromZ = fromZ;
-        this.toZ = toZ;
+    public Territory(int fromX, int fromZ, int toX, int toZ) {
+        this.fromX = Math.min(fromX, toX);
+        this.toX = Math.max(fromX, toX);
+        this.fromZ = Math.min(fromZ, toZ);
+        this.toZ = Math.max(fromZ, toZ);
     }
 
     public int getFromX() {
-        return Math.min(this.fromX, this.toX);
+        return this.fromX;
     }
 
     public int getFromZ() {
-        return Math.min(this.fromZ, this.toZ);
+        return this.fromZ;
     }
 
     public int getToX() {
-        return Math.max(this.fromX, this.toX);
+        return this.toX;
     }
 
     public int getToZ() {
-        return Math.max(this.fromZ, this.toZ);
+        return this.toZ;
     }
 }
