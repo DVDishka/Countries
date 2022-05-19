@@ -22,7 +22,7 @@ public class Check extends Thread {
                         Location location = player.getLocation();
                         if (location.getBlockX() >= territory.getFromX() && location.getBlockX() <= territory.getToX() &&
                                 location.getBlockZ() >= territory.getFromZ() && location.getBlockZ() <= territory.getToZ()) {
-                            player.sendActionBar(ChatColor.GOLD + country.getName() + " territory");
+                            player.sendActionBar(country.getChatColor() + country.getName() + " territory");
                         }
                     }
                 }

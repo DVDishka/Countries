@@ -2,12 +2,8 @@ package dvdcraft.countries.executorsHandlers;
 
 import dvdcraft.countries.common.Classes.Country;
 import dvdcraft.countries.common.Classes.Territory;
-import dvdcraft.countries.common.CommonVariables;
-import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.checkerframework.checker.units.qual.A;
-import org.checkerframework.checker.units.qual.C;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -27,7 +23,7 @@ public class CountryTabCompleter implements org.bukkit.command.TabCompleter {
             }
 
             if (args.length == 1) {
-                return Arrays.asList("create", "get", "member", "status", "territory");
+                return Arrays.asList("color", "create", "get", "member", "status", "territory");
             }
 
             if (args.length == 2) {
@@ -35,6 +31,8 @@ public class CountryTabCompleter implements org.bukkit.command.TabCompleter {
                     return Arrays.asList("add", "remove");
                 } else if (args[0].equals("get")) {
                     return null;
+                } else if (args[0].equals("color")) {
+                    return Arrays.asList("set");
                 } else {
                     return Arrays.asList("");
                 }
@@ -67,9 +65,14 @@ public class CountryTabCompleter implements org.bukkit.command.TabCompleter {
                                 String.valueOf(territory.getToX()) + " " + String.valueOf(territory.getToZ()));
                     }
                     return list;
+                } else if (args[0].equals("color") && args[1].equals("set")) {
+                    return Arrays.asList("RED", "BLUE", "BLACK", "AQUA", "GREEN", "WHITE", "YELLOW", "GRAY", "ORANGE", "PURPLE");
                 } else {
                     return Arrays.asList("");
                 }
+            }
+            if (args.length > 3) {
+                return Arrays.asList("");
             }
         }
         return null;

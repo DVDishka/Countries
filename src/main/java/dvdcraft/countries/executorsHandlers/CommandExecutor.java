@@ -5,6 +5,7 @@ import dvdcraft.countries.common.Classes.Country;
 import dvdcraft.countries.common.Classes.Territory;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Color;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -125,7 +126,7 @@ public class CommandExecutor implements org.bukkit.command.CommandExecutor {
                         " Z: " + territory.getToZ();
                 answer += "\n";
             }
-            sender.sendMessage(answer);
+            sender.sendMessage(country.getChatColor() + answer);
             return true;
         }
 
@@ -222,6 +223,25 @@ public class CommandExecutor implements org.bukkit.command.CommandExecutor {
                 }
             }
             sender.sendMessage(ChatColor.RED + "It is not territory of your country!");
+        }
+
+        if (commandName.equals("color") && args.length == 3 && args[1].equals("set")) {
+            Country country = Country.getCountry(player.getName());
+            if (country == null) {
+                sender.sendMessage(ChatColor.RED + "You are not in the country!");
+                return true;
+            }
+            if (!country.getCountryLeader().equals(player.getName())) {
+                sender.sendMessage("You are not the leader of the country!");
+                return true;
+            }
+            String colorName = args[2];
+            if (country.setColor(colorName)) {
+                sender.sendMessage("Country color has been set");
+            } else {
+                sender.sendMessage(ChatColor.RED + "Wrong color!");
+            }
+            return true;
         }
         return false;
     }
