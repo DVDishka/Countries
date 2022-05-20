@@ -66,7 +66,7 @@ public class CountryTabCompleter implements org.bukkit.command.TabCompleter {
                     }
                     return list;
                 } else if (args[0].equals("color") && args[1].equals("set")) {
-                    return Arrays.asList("RED", "BLUE", "BLACK", "AQUA", "GREEN", "WHITE", "YELLOW", "GRAY", "ORANGE", "PURPLE");
+                    return Arrays.asList("RED", "BLUE", "BLACK", "AQUA", "GREEN", "WHITE", "YELLOW", "GRAY", "GOLD", "DARK_PURPLE", "LIGHT_PURPLE", "DARK_AQUA", "DARK_GREEN", "DARK_RED", "DARK_GRAY", "DARK_BLUE");
                 } else {
                     return Arrays.asList("");
                 }

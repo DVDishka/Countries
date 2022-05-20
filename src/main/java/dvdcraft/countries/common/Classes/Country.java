@@ -1,9 +1,12 @@
 package dvdcraft.countries.common.Classes;
 
 import dvdcraft.countries.common.CommonVariables;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
 import org.bukkit.entity.Player;
+import org.bukkit.scoreboard.ScoreboardManager;
+import org.bukkit.scoreboard.Team;
 
 import java.io.Serializable;
 import java.util.HashSet;
@@ -13,25 +16,28 @@ public class Country implements Serializable {
     private String leader;
     private HashSet<String> members = new HashSet<String>();
     private HashSet<Territory> territories = new HashSet<Territory>();
-    private Color color;
     private ChatColor chatColor;
+    private Team team;
 
     public Country(String name) {
         this.name = name;
-        this.color = Color.WHITE;
         this.chatColor = ChatColor.WHITE;
+        ScoreboardManager scoreboardManager = Bukkit.getScoreboardManager();
+        this.team = scoreboardManager.getMainScoreboard().registerNewTeam(name);
+        this.team.setPrefix(name + " ");
     }
 
-    public Country(String name, Player leader, HashSet<String> members, HashSet<Territory> territories, Color color, ChatColor chatColor) {
+    public Country(String name, Player leader, HashSet<String> members, HashSet<Territory> territories, ChatColor chatColor) {
         this.name = name;
         this.leader = leader.getName();
         this.members = members;
         this.territories = territories;
-        this.color = color;
+        this.chatColor = chatColor;
     }
 
     public void addMember(String name) {
         this.members.add(name);
+        this.team.addPlayer(Bukkit.getPlayer(name));
     }
 
     public void addTerritory(Territory territory) {
@@ -40,6 +46,7 @@ public class Country implements Serializable {
 
     public void removeMember(String name) {
         this.members.remove(name);
+        this.team.removePlayer(Bukkit.getPlayer(name));
     }
 
     public void removeTerritory(Territory territory) {
@@ -53,44 +60,68 @@ public class Country implements Serializable {
     public boolean setColor(String colorName) {
         switch (colorName) {
             case "RED":
-                color = Color.RED;
                 chatColor = ChatColor.RED;
+                this.team.setColor(chatColor);
                 return true;
             case "BLUE":
-                color = Color.BLUE;
                 chatColor = ChatColor.BLUE;
+                this.team.setColor(chatColor);
                 return true;
             case "BLACK":
-                color = Color.BLACK;
                 chatColor = ChatColor.BLACK;
+                this.team.setColor(chatColor);
                 return true;
             case "AQUA":
-                color = Color.AQUA;
                 chatColor = ChatColor.AQUA;
+                this.team.setColor(chatColor);
                 return true;
             case "GREEN":
-                color = Color.GREEN;
                 chatColor = ChatColor.GREEN;
+                this.team.setColor(chatColor);
                 return true;
             case "WHITE":
-                color = Color.WHITE;
                 chatColor = ChatColor.WHITE;
+                this.team.setColor(chatColor);
                 return true;
             case "YELLOW":
-                color = Color.YELLOW;
                 chatColor = ChatColor.YELLOW;
+                this.team.setColor(chatColor);
                 return true;
             case "GRAY":
-                color = Color.GRAY;
                 chatColor = ChatColor.GRAY;
+                this.team.setColor(chatColor);
                 return true;
-            case "ORANGE":
-                color = Color.ORANGE;
+            case "GOLD":
                 chatColor = ChatColor.GOLD;
+                this.team.setColor(chatColor);
                 return true;
-            case "PURPLE":
-                color = Color.PURPLE;
+            case "DARK_PURPLE":
                 chatColor = ChatColor.DARK_PURPLE;
+                this.team.setColor(chatColor);
+                return true;
+            case "LIGHT_PURPLE":
+                chatColor = ChatColor.LIGHT_PURPLE;
+                this.team.setColor(chatColor);
+                return true;
+            case "DARK_AQUA":
+                chatColor = ChatColor.DARK_AQUA;
+                this.team.setColor(chatColor);
+                return true;
+            case "DARK_BLUE":
+                chatColor = ChatColor.DARK_BLUE;
+                this.team.setColor(chatColor);
+                return true;
+            case "DARK_GRAY":
+                chatColor = ChatColor.DARK_GRAY;
+                this.team.setColor(chatColor);
+                return true;
+            case "DARK_GREEN":
+                chatColor = ChatColor.DARK_GREEN;
+                this.team.setColor(chatColor);
+                return true;
+            case "DARK_RED":
+                chatColor = ChatColor.DARK_RED;
+                this.team.setColor(chatColor);
                 return true;
             default:
                 return false;
@@ -99,10 +130,6 @@ public class Country implements Serializable {
 
     public String getName() {
         return this.name;
-    }
-
-    public Color getColor() {
-        return this.color;
     }
 
     public ChatColor getChatColor() {
@@ -131,6 +158,4 @@ public class Country implements Serializable {
     public HashSet<Territory> getTerritories() {
         return this.territories;
     }
-
-
 }
