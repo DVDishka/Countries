@@ -9,6 +9,7 @@ import dvdcraft.countries.common.FileDir;
 import dvdcraft.countries.executorsHandlers.CommandExecutor;
 import dvdcraft.countries.executorsHandlers.CountryTabCompleter;
 import dvdcraft.countries.territoryCheckThread.Check;
+import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -55,6 +56,11 @@ public final class Countries extends JavaPlugin {
         } catch (Exception e) {
             CommonVariables.logger.warning("Can not read JSON file!");
         }
+
+        for (Country country : CommonVariables.countries) {
+            CommonVariables.addTeam(country.getName());
+        }
+
         new Check("Check").start();
         CommandExecutor commandExecutor = new CommandExecutor();
         TabCompleter TabCompleter = new CountryTabCompleter();
