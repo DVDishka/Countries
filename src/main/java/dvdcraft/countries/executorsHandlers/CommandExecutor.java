@@ -25,13 +25,19 @@ public class CommandExecutor implements org.bukkit.command.CommandExecutor {
         }
         if (commandName.equals("create") && args.length == 2) {
             if (Country.getCountry(player.getName()) != null) {
-                sender.sendMessage(ChatColor.RED + "if you are in the country you cannot create a new one!");
+                sender.sendMessage(ChatColor.RED + "If you are in the country you cannot create a new one!");
                 return true;
+            }
+            for (Country country : CommonVariables.countries) {
+                if (country.getName().equals(args[1])) {
+                    sender.sendMessage(ChatColor.RED + "A country with this name already exists!");
+                    return true;
+                }
             }
             Country country = new Country(args[1]);
             country.addMember(player.getName());
             country.setLeader(player.getName());
-            sender.sendMessage("country " + args[1] + " has been created!");
+            sender.sendMessage("Country " + args[1] + " has been created!");
             CommonVariables.countries.add(country);
             return true;
         }
@@ -51,8 +57,10 @@ public class CommandExecutor implements org.bukkit.command.CommandExecutor {
                         sender.sendMessage(ChatColor.RED + "This player is already in the country!");
                         return true;
                     } else {
-                        country.addMember(member.getName());
-                        sender.sendMessage(member.getName() + " has been added to " + country.getName());
+                        sender.sendMessage(member.getName() + " has been invited to " + country.getName());
+                        member.sendMessage(country.getChatColor() + "You has been invited to " + country.getName() +
+                                " by " + player.getName() + " </country yes> or </country no>");
+                        CommonVariables.requests.put(member.getName(), country);
                         return true;
                     }
                 } else {
@@ -278,7 +286,7 @@ public class CommandExecutor implements org.bukkit.command.CommandExecutor {
                 return true;
             }
             country.removeMember(player.getName());
-            CommonVariables.teams.get(country).removePlayer(Bukkit.getPlayer(player.getName()));
+            CommonVariables.teams.get(country.getName()).removePlayer(Bukkit.getPlayer(player.getName()));
             sender.sendMessage("You left the country!");
             return true;
         }
@@ -307,6 +315,31 @@ public class CommandExecutor implements org.bukkit.command.CommandExecutor {
             country.setLeader(newLeaderPlayer.getName());
             sender.sendMessage("New leader has been set");
             return true;
+        }
+
+        if (commandName.equals("yes")) {
+            try {
+                Country request = CommonVariables.requests.get(player.getName());
+                CommonVariables.requests.remove(player.getName());
+                request.addMember(player.getName());
+                sender.sendMessage(request.getChatColor() + "You has been added to " + request.getName());
+                return true;
+            } catch (Exception e) {
+                sender.sendMessage(ChatColor.RED + "You have not any invitations!");
+                return true;
+            }
+        }
+
+        if (commandName.equals("no")) {
+            try {
+                Country request = CommonVariables.requests.get(player.getName());
+                CommonVariables.requests.remove(player.getName());
+                sender.sendMessage(request.getChatColor() + "You declined the invitation to " + request.getName());
+                return true;
+            } catch (Exception e) {
+                sender.sendMessage(ChatColor.RED + "You have not any invitations!");
+                return true;
+            }
         }
         return false;
     }

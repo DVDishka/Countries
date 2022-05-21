@@ -23,7 +23,7 @@ public class CountryTabCompleter implements org.bukkit.command.TabCompleter {
             }
 
             if (args.length == 1) {
-                return Arrays.asList("color", "create", "get", "member", "status", "territory", "delete", "leave", "leader");
+                return Arrays.asList("color", "create", "get", "member", "status", "territory", "delete", "leave", "leader", "yes", "no");
             }
 
             if (args.length == 2) {

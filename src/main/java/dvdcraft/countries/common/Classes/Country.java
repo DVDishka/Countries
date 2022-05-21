@@ -16,11 +16,6 @@ public class Country implements Serializable {
     private ChatColor chatColor;
 
     public Country(String name) {
-        for (Country country : CommonVariables.countries) {
-            if (country.name.equals(name)) {
-                return;
-            }
-        }
         this.name = name;
         this.chatColor = ChatColor.WHITE;
         CommonVariables.addTeam(name);
