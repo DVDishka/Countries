@@ -4,8 +4,6 @@ import dvdcraft.countries.common.CommonVariables;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
-import org.bukkit.scoreboard.ScoreboardManager;
-import org.bukkit.scoreboard.Team;
 
 import java.io.Serializable;
 import java.util.HashSet;
@@ -13,8 +11,8 @@ import java.util.HashSet;
 public class Country implements Serializable {
     private String name;
     private String leader;
-    private HashSet<String> members = new HashSet<String>();
-    private HashSet<Territory> territories = new HashSet<Territory>();
+    private HashSet<String> members = new HashSet<>();
+    private HashSet<Territory> territories = new HashSet<>();
     private ChatColor chatColor;
 
     public Country(String name) {
@@ -25,7 +23,6 @@ public class Country implements Serializable {
         }
         this.name = name;
         this.chatColor = ChatColor.WHITE;
-        ScoreboardManager scoreboardManager = Bukkit.getScoreboardManager();
         CommonVariables.addTeam(name);
         CommonVariables.teams.get(name).setColor(chatColor);
         CommonVariables.teams.get(name).setPrefix(name + " ");

@@ -1,15 +1,13 @@
 package dvdcraft.countries.common.Classes;
 
-import org.bukkit.block.Block;
-
 import java.io.Serializable;
 
 public class Territory implements Serializable {
 
-    private int fromX;
-    private int toX;
-    private int fromZ;
-    private int toZ;
+    private final int fromX;
+    private final int toX;
+    private final int fromZ;
+    private final int toZ;
 
     public Territory(int fromX, int fromZ, int toX, int toZ) {
         this.fromX = Math.min(fromX, toX);

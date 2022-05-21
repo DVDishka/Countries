@@ -7,3 +7,4 @@ authors: [ dvdishka ]
 description: Countries plugin
 commands:
   country:
+    description: "Main command of Countries plugin"

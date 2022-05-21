@@ -23,7 +23,7 @@ public class CountryTabCompleter implements org.bukkit.command.TabCompleter {
             }
 
             if (args.length == 1) {
-                return Arrays.asList("color", "create", "get", "member", "status", "territory");
+                return Arrays.asList("color", "create", "get", "member", "status", "territory", "delete", "leave", "leader");
             }
 
             if (args.length == 2) {
@@ -31,14 +31,14 @@ public class CountryTabCompleter implements org.bukkit.command.TabCompleter {
                     return Arrays.asList("add", "remove");
                 } else if (args[0].equals("get")) {
                     return null;
-                } else if (args[0].equals("color")) {
+                } else if (args[0].equals("color") | args[0].equals("leader")) {
                     return Arrays.asList("set");
                 } else {
                     return Arrays.asList("");
                 }
             }
             if (args.length == 3) {
-                if (args[0].equals("member") && args[1].equals("add")) {
+                if (args[0].equals("member") && args[1].equals("add") | args[0].equals("leader") && args[1].equals("set")) {
                     return null;
                 } else if (args[0].equals("member") && args[1].equals("remove")) {
                     ArrayList<String> list = new ArrayList<String>();

@@ -5,7 +5,6 @@ import dvdcraft.countries.common.Classes.Country;
 import dvdcraft.countries.common.Classes.Territory;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Color;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -241,6 +240,72 @@ public class CommandExecutor implements org.bukkit.command.CommandExecutor {
             } else {
                 sender.sendMessage(ChatColor.RED + "Wrong color!");
             }
+            return true;
+        }
+
+        if (commandName.equals("delete")) {
+            Country country = Country.getCountry(player.getName());
+            if (country == null) {
+                sender.sendMessage(ChatColor.RED + "You are not in the country!");
+                return true;
+            }
+            String leader = country.getCountryLeader();
+            if (!player.getName().equals(leader)) {
+                sender.sendMessage(ChatColor.RED + "You are not the leader of the country!");
+                return true;
+            }
+            for (String member : country.getMembers()) {
+                country.removeMember(member);
+            }
+            for (Territory territory : country.getTerritories()) {
+                country.removeTerritory(territory);
+            }
+            CommonVariables.teams.remove(country.getName());
+            CommonVariables.countries.remove(country);
+            sender.sendMessage("Country was deleted!");
+            return true;
+        }
+
+        if (commandName.equals("leave")) {
+            Country country = Country.getCountry(player.getName());
+            if (country == null) {
+                sender.sendMessage(ChatColor.RED + "You are not in the country!");
+                return true;
+            }
+            String leader = country.getCountryLeader();
+            if (player.getName().equals(leader)) {
+                sender.sendMessage(ChatColor.RED + "You are the leader of the country, so you need to set new leader before leaving!");
+                return true;
+            }
+            country.removeMember(player.getName());
+            CommonVariables.teams.get(country).removePlayer(Bukkit.getPlayer(player.getName()));
+            sender.sendMessage("You left the country!");
+            return true;
+        }
+
+        if (commandName.equals("leader") && args.length == 3 && args[1].equals("set")) {
+            Country country = Country.getCountry(player.getName());
+            if (country == null) {
+                sender.sendMessage(ChatColor.RED + "You are not in the country!");
+                return true;
+            }
+            String leader = country.getCountryLeader();
+            if (!player.getName().equals(leader)) {
+                sender.sendMessage(ChatColor.RED + "You are not the leader of the country!");
+                return true;
+            }
+            Player newLeaderPlayer = Bukkit.getPlayer(args[2]);
+            if (newLeaderPlayer == null) {
+                sender.sendMessage(ChatColor.RED + "There is no player with that name!");
+                return true;
+            }
+            Country newLeaderCountry = Country.getCountry(newLeaderPlayer.getName());
+            if (newLeaderCountry != country) {
+                sender.sendMessage(ChatColor.RED + "Player is not in your country!");
+                return true;
+            }
+            country.setLeader(newLeaderPlayer.getName());
+            sender.sendMessage("New leader has been set");
             return true;
         }
         return false;
