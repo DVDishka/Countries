@@ -2,8 +2,11 @@ package dvdcraft.countries.executorsHandlers;
 
 import dvdcraft.countries.common.Classes.Country;
 import dvdcraft.countries.common.Classes.Territory;
+import dvdcraft.countries.common.CommonVariables;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -23,25 +26,70 @@ public class CountryTabCompleter implements org.bukkit.command.TabCompleter {
             }
 
             if (args.length == 1) {
-                return Arrays.asList("color", "create", "get", "member", "status", "territory", "delete", "leave", "leader", "yes", "no");
+                Player player = Bukkit.getPlayer(sender.getName());
+                Country country = Country.getCountry(player.getName());
+                int flag = 0;
+                if (country != null && country.getCountryLeader() != null && country.getCountryLeader().equals(player.getName())) {
+                    flag = 1;
+                }
+                if (CommonVariables.requests.containsKey(player.getName())) {
+                    flag += 2;
+                }
+                if (country == null) {
+                    flag -= 3;
+                }
+                if (flag == 0) {
+                    return Arrays.asList("create", "get", "status", "leave");
+                }
+                if (flag == 1) {
+                    return Arrays.asList("create", "get", "status", "leave", "edit");
+                }
+                if (flag == 2) {
+                    return Arrays.asList("create", "get", "status", "leave", "reply");
+                }
+                if (flag == 3) {
+                    return Arrays.asList("create", "get", "status", "leave", "edit", "reply");
+                }
+                if (flag == -3) {
+                    return Arrays.asList("create", "get", "status");
+                }
+                if (flag == -1) {
+                    return Arrays.asList("create", "get", "status", "reply");
+                }
             }
 
             if (args.length == 2) {
-                if (args[0].equals("territory") | args[0].equals("member")) {
-                    return Arrays.asList("add", "remove");
+                if (args[0].equals("edit")) {
+                    return Arrays.asList("color", "member", "territory", "delete", "leader");
                 } else if (args[0].equals("get")) {
-                    return null;
-                } else if (args[0].equals("color") | args[0].equals("leader")) {
+                    return Arrays.asList("countries");
+                } else if (args[0].equals("reply")) {
+                    return Arrays.asList("yes", "no");
+                } else {
+                    return Arrays.asList("");
+                }
+            }
+
+            if (args.length == 3) {
+                if (args[1].equals("territory") || args[1].equals("member")) {
+                    return Arrays.asList("add", "remove");
+                } else if (args[1].equals("color") || args[1].equals("leader")) {
                     return Arrays.asList("set");
                 } else {
                     return Arrays.asList("");
                 }
             }
-            if (args.length == 3) {
-                if (args[0].equals("member") && args[1].equals("add") | args[0].equals("leader") && args[1].equals("set")) {
-                    return null;
-                } else if (args[0].equals("member") && args[1].equals("remove")) {
-                    ArrayList<String> list = new ArrayList<String>();
+            if (args.length == 4) {
+                if (args[1].equals("member") && args[2].equals("add") || args[1].equals("leader") && args[2].equals("set")) {
+                    ArrayList<String> list = new ArrayList<>();
+                    for (Player player : Bukkit.getOnlinePlayers()) {
+                        if (!player.getName().equals(sender.getName())) {
+                            list.add(player.getName());
+                        }
+                    }
+                    return list;
+                } else if (args[1].equals("member") && args[2].equals("remove")) {
+                    ArrayList<String> list = new ArrayList<>();
                     Country country = Country.getCountry(sender.getName());
                     if (country == null) {
                         list.add("");
@@ -53,8 +101,8 @@ public class CountryTabCompleter implements org.bukkit.command.TabCompleter {
                         }
                     }
                     return list;
-                } else if (args[0].equals("territory") && args[1].equals("remove")) {
-                    ArrayList<String> list = new ArrayList<String>();
+                } else if (args[1].equals("territory") && args[2].equals("remove")) {
+                    ArrayList<String> list = new ArrayList<>();
                     Country country = Country.getCountry(sender.getName());
                     if (country == null) {
                         list.add("");
@@ -65,13 +113,13 @@ public class CountryTabCompleter implements org.bukkit.command.TabCompleter {
                                 String.valueOf(territory.getToX()) + " " + String.valueOf(territory.getToZ()));
                     }
                     return list;
-                } else if (args[0].equals("color") && args[1].equals("set")) {
+                } else if (args[1].equals("color") && args[2].equals("set")) {
                     return Arrays.asList("RED", "BLUE", "BLACK", "AQUA", "GREEN", "WHITE", "YELLOW", "GRAY", "GOLD", "DARK_PURPLE", "LIGHT_PURPLE", "DARK_AQUA", "DARK_GREEN", "DARK_RED", "DARK_GRAY", "DARK_BLUE");
                 } else {
                     return Arrays.asList("");
                 }
             }
-            if (args.length > 3) {
+            if (args.length > 4) {
                 return Arrays.asList("");
             }
         }

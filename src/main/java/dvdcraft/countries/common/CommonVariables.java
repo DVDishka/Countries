@@ -17,10 +17,10 @@ public class CommonVariables {
     public static HashMap<String, Country> requests = new HashMap<>();
 
     public static void addTeam(String teamName) {
-        try {
-            CommonVariables.teams.put(teamName, Bukkit.getScoreboardManager().getMainScoreboard().registerNewTeam(teamName));
-        } catch (Exception e) {
+        if (Bukkit.getScoreboardManager().getMainScoreboard().getTeam(teamName) != null) {
             CommonVariables.teams.put(teamName, Bukkit.getScoreboardManager().getMainScoreboard().getTeam(teamName));
+        } else {
+            CommonVariables.teams.put(teamName, Bukkit.getScoreboardManager().getMainScoreboard().registerNewTeam(teamName));
         }
     }
 }

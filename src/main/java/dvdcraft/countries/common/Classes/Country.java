@@ -42,7 +42,7 @@ public class Country implements Serializable {
 
     public void removeMember(String name) {
         this.members.remove(name);
-        CommonVariables.teams.get(this.name).removePlayer(Bukkit.getPlayer(name));
+        CommonVariables.teams.get(this.name).removePlayer(Bukkit.getOfflinePlayer(name));
     }
 
     public void removeTerritory(Territory territory) {

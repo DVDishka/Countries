@@ -42,8 +42,8 @@ public class CommandExecutor implements org.bukkit.command.CommandExecutor {
             return true;
         }
 
-        if (commandName.equals("member") && args.length == 3 && args[1].equals("add")) {
-            Player member = Bukkit.getPlayer(args[2]);
+        if (commandName.equals("edit") && args.length == 4 && args[1].equals("member") && args[2].equals("add")) {
+            Player member = Bukkit.getPlayer(args[3]);
             if (member == null) {
                 sender.sendMessage(ChatColor.RED + "There is no player with that name!");
                 return true;
@@ -59,7 +59,7 @@ public class CommandExecutor implements org.bukkit.command.CommandExecutor {
                     } else {
                         sender.sendMessage(member.getName() + " has been invited to " + country.getName());
                         member.sendMessage(country.getChatColor() + "You has been invited to " + country.getName() +
-                                " by " + player.getName() + " </country yes> or </country no>");
+                                " by " + player.getName() + " </country reply yes> or </country reply no>");
                         CommonVariables.requests.put(member.getName(), country);
                         return true;
                     }
@@ -70,18 +70,18 @@ public class CommandExecutor implements org.bukkit.command.CommandExecutor {
             }
         }
 
-        if (commandName.equals("member") && args.length == 3 && args[1].equals("remove")) {
+        if (commandName.equals("edit") && args.length == 4 && args[1].equals("member") && args[2].equals("remove")) {
             Country country = Country.getCountry(player.getName());
-            Country memberCountry = Country.getCountry(args[2]);
+            Country memberCountry = Country.getCountry(args[3]);
             if (country != null) {
                 if (country != memberCountry) {
-                    sender.sendMessage(ChatColor.RED + args[2] + " is not in your country!");
+                    sender.sendMessage(ChatColor.RED + args[3] + " is not in your country!");
                     return true;
                 } else {
                     String leader = country.getCountryLeader();
                     if (leader.equals(player.getName())) {
-                        country.removeMember(args[2]);
-                        sender.sendMessage(args[2] + " has been removed from " + country.getName());
+                        country.removeMember(args[3]);
+                        sender.sendMessage(args[3] + " has been removed from " + country.getName());
                         return true;
                     } else {
                         sender.sendMessage(ChatColor.RED + "You are not the leader of the country!");
@@ -94,19 +94,34 @@ public class CommandExecutor implements org.bukkit.command.CommandExecutor {
             }
         }
 
-        if (commandName.equals("get") && args.length == 2) {
-            Player member = Bukkit.getPlayer(args[1]);
-            if (member == null) {
-                sender.sendMessage(ChatColor.RED + "There is no player with that name!");
+        if (commandName.equals("get") && args.length == 2 && args[1].equals("countries")) {
+            if (CommonVariables.countries.isEmpty()) {
+                sender.sendMessage(ChatColor.RED + "There are no countries yet!");
+                return true;
+            } else {
+                for (Country country : CommonVariables.countries) {
+                    String answer = "";
+                    answer += "Country name: ";
+                    answer += country.getName() + "\n";
+                    answer += "Country leader: ";
+                    answer += country.getCountryLeader() + "\n";
+                    answer += "Members: ";
+                    for (String member : country.getMembers()) {
+                        answer += member + " ";
+                    }
+                    answer += "\n";
+                    answer += "Territories: ";
+                    for (Territory territory : country.getTerritories()) {
+                        answer += "from X: " + territory.getFromX() +
+                                " Z: " + territory.getFromZ();
+                        answer += " to X: " + territory.getToX() +
+                                " Z: " + territory.getToZ();
+                        answer += "\n";
+                    }
+                    sender.sendMessage(country.getChatColor() + answer);
+                }
                 return true;
             }
-            Country country = Country.getCountry(member.getName());
-            if (country == null) {
-                sender.sendMessage("This player has no country");
-                return true;
-            }
-            sender.sendMessage("This player is in " + country.getName());
-            return true;
         }
 
         if (commandName.equals("status")) {
@@ -137,16 +152,16 @@ public class CommandExecutor implements org.bukkit.command.CommandExecutor {
             return true;
         }
 
-        if (commandName.equals("territory") && args.length == 6 && args[1].equals("add")) {
+        if (commandName.equals("edit") && args.length == 7 && args[1].equals("territory") && args[2].equals("add")) {
             int fromX = 0;
             int toX = 0;
             int fromZ = 0;
             int toZ = 0;
             try {
-                fromX = Integer.parseInt(args[2]);
-                fromZ = Integer.parseInt(args[3]);
-                toX = Integer.parseInt(args[4]);
-                toZ = Integer.parseInt(args[5]);
+                fromX = Integer.parseInt(args[3]);
+                fromZ = Integer.parseInt(args[4]);
+                toX = Integer.parseInt(args[5]);
+                toZ = Integer.parseInt(args[6]);
             } catch (Exception e) {
                 sender.sendMessage("All arguments must be a number");
                 return true;
@@ -167,23 +182,23 @@ public class CommandExecutor implements org.bukkit.command.CommandExecutor {
             for (Country checkCountry : CommonVariables.countries) {
                 for (Territory checkTerritory : checkCountry.getTerritories()) {
                     if (fromX >= checkTerritory.getFromX() && fromX <= checkTerritory.getToX() &&
-                            fromZ >= checkTerritory.getFromZ() && fromZ <= checkTerritory.getToZ() |
+                            fromZ >= checkTerritory.getFromZ() && fromZ <= checkTerritory.getToZ() ||
                             toX >= checkTerritory.getFromX() && toX <= checkTerritory.getToX() &&
-                            toZ >= checkTerritory.getFromZ() && toZ <= checkTerritory.getToZ() |
+                            toZ >= checkTerritory.getFromZ() && toZ <= checkTerritory.getToZ() ||
 
                             fromX >= checkTerritory.getFromX() && fromX <= checkTerritory.getToX() &&
-                            toZ >= checkTerritory.getFromZ() && toZ <= checkTerritory.getToZ() |
+                            toZ >= checkTerritory.getFromZ() && toZ <= checkTerritory.getToZ() ||
                             fromX >= checkTerritory.getFromX() && fromX <= checkTerritory.getToX() &&
-                            toZ >= checkTerritory.getFromZ() && toZ <= checkTerritory.getToZ() |
+                            toZ >= checkTerritory.getFromZ() && toZ <= checkTerritory.getToZ() ||
 
 
                             checkTerritory.getFromX() >= fromX && checkTerritory.getFromX() <= toX &&
-                            checkTerritory.getFromZ() >= fromZ && checkTerritory.getFromZ() <= toZ |
+                            checkTerritory.getFromZ() >= fromZ && checkTerritory.getFromZ() <= toZ ||
                             checkTerritory.getToX() >= fromX && checkTerritory.getToX() <= toX &&
-                            checkTerritory.getToZ() >= fromZ && checkTerritory.getToZ() <= toZ |
+                            checkTerritory.getToZ() >= fromZ && checkTerritory.getToZ() <= toZ ||
 
                             checkTerritory.getFromX() >= fromX && checkTerritory.getFromX() <= toX &&
-                            checkTerritory.getToZ() >= fromZ && checkTerritory.getToZ() <= toZ |
+                            checkTerritory.getToZ() >= fromZ && checkTerritory.getToZ() <= toZ ||
                             checkTerritory.getFromX() >= fromX && checkTerritory.getFromX() <= toX &&
                             checkTerritory.getToZ() >= fromZ && checkTerritory.getToZ() <= toZ) {
 
@@ -198,16 +213,16 @@ public class CommandExecutor implements org.bukkit.command.CommandExecutor {
             return true;
         }
 
-        if (commandName.equals("territory") && args.length == 6 && args[1].equals("remove")) {
+        if (commandName.equals("edit") && args.length == 7 && args[1].equals("territory") && args[2].equals("remove")) {
             int fromX = 0;
             int toX = 0;
             int fromZ = 0;
             int toZ = 0;
             try {
-                fromX = Integer.parseInt(args[2]);
-                fromZ = Integer.parseInt(args[3]);
-                toX = Integer.parseInt(args[4]);
-                toZ = Integer.parseInt(args[5]);
+                fromX = Integer.parseInt(args[3]);
+                fromZ = Integer.parseInt(args[4]);
+                toX = Integer.parseInt(args[5]);
+                toZ = Integer.parseInt(args[6]);
             } catch (Exception e) {
                 sender.sendMessage("All arguments must be a number");
                 return true;
@@ -232,7 +247,7 @@ public class CommandExecutor implements org.bukkit.command.CommandExecutor {
             sender.sendMessage(ChatColor.RED + "It is not territory of your country!");
         }
 
-        if (commandName.equals("color") && args.length == 3 && args[1].equals("set")) {
+        if (commandName.equals("edit") && args.length == 4 && args[1].equals("color") && args[2].equals("set")) {
             Country country = Country.getCountry(player.getName());
             if (country == null) {
                 sender.sendMessage(ChatColor.RED + "You are not in the country!");
@@ -242,7 +257,7 @@ public class CommandExecutor implements org.bukkit.command.CommandExecutor {
                 sender.sendMessage("You are not the leader of the country!");
                 return true;
             }
-            String colorName = args[2];
+            String colorName = args[3];
             if (country.setColor(colorName)) {
                 sender.sendMessage("Country color has been set");
             } else {
@@ -251,7 +266,7 @@ public class CommandExecutor implements org.bukkit.command.CommandExecutor {
             return true;
         }
 
-        if (commandName.equals("delete")) {
+        if (commandName.equals("edit") && args.length == 2 && args[1].equals("delete")) {
             Country country = Country.getCountry(player.getName());
             if (country == null) {
                 sender.sendMessage(ChatColor.RED + "You are not in the country!");
@@ -262,12 +277,7 @@ public class CommandExecutor implements org.bukkit.command.CommandExecutor {
                 sender.sendMessage(ChatColor.RED + "You are not the leader of the country!");
                 return true;
             }
-            for (String member : country.getMembers()) {
-                country.removeMember(member);
-            }
-            for (Territory territory : country.getTerritories()) {
-                country.removeTerritory(territory);
-            }
+            CommonVariables.teams.get(country.getName()).unregister();
             CommonVariables.teams.remove(country.getName());
             CommonVariables.countries.remove(country);
             sender.sendMessage("Country was deleted!");
@@ -291,7 +301,7 @@ public class CommandExecutor implements org.bukkit.command.CommandExecutor {
             return true;
         }
 
-        if (commandName.equals("leader") && args.length == 3 && args[1].equals("set")) {
+        if (commandName.equals("edit") && args.length == 4 && args[1].equals("leader") && args[2].equals("set")) {
             Country country = Country.getCountry(player.getName());
             if (country == null) {
                 sender.sendMessage(ChatColor.RED + "You are not in the country!");
@@ -302,7 +312,7 @@ public class CommandExecutor implements org.bukkit.command.CommandExecutor {
                 sender.sendMessage(ChatColor.RED + "You are not the leader of the country!");
                 return true;
             }
-            Player newLeaderPlayer = Bukkit.getPlayer(args[2]);
+            Player newLeaderPlayer = Bukkit.getPlayer(args[3]);
             if (newLeaderPlayer == null) {
                 sender.sendMessage(ChatColor.RED + "There is no player with that name!");
                 return true;
@@ -317,7 +327,7 @@ public class CommandExecutor implements org.bukkit.command.CommandExecutor {
             return true;
         }
 
-        if (commandName.equals("yes")) {
+        if (commandName.equals("reply") && args.length == 2 && args[1].equals("yes")) {
             try {
                 Country request = CommonVariables.requests.get(player.getName());
                 CommonVariables.requests.remove(player.getName());
@@ -330,7 +340,7 @@ public class CommandExecutor implements org.bukkit.command.CommandExecutor {
             }
         }
 
-        if (commandName.equals("no")) {
+        if (commandName.equals("reply") && args.length == 2 && args[1].equals("no")) {
             try {
                 Country request = CommonVariables.requests.get(player.getName());
                 CommonVariables.requests.remove(player.getName());
@@ -341,6 +351,7 @@ public class CommandExecutor implements org.bukkit.command.CommandExecutor {
                 return true;
             }
         }
+        sender.sendMessage(ChatColor.RED + "Unknown command!");
         return false;
     }
 }
