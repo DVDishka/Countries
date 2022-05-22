@@ -2,7 +2,6 @@ name: Countries
 version: '${project.version}'
 main: dvdcraft.countries.Countries
 api-version: 1.18
-prefix: countries
 authors: [ dvdishka ]
 description: Countries plugin
 commands:
