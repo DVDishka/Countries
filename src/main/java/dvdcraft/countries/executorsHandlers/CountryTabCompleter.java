@@ -21,10 +21,6 @@ public class CountryTabCompleter implements org.bukkit.command.TabCompleter {
 
         if (command.getName().equals("country")) {
 
-            if (args.length == 0) {
-                return Arrays.asList("country");
-            }
-
             if (args.length == 1) {
                 Player player = Bukkit.getPlayer(sender.getName());
                 Country country = Country.getCountry(player.getName());
@@ -51,10 +47,10 @@ public class CountryTabCompleter implements org.bukkit.command.TabCompleter {
                     return Arrays.asList("create", "get", "status", "leave", "edit", "reply");
                 }
                 if (flag == -3) {
-                    return Arrays.asList("create", "get", "status");
+                    return Arrays.asList("create", "get");
                 }
                 if (flag == -1) {
-                    return Arrays.asList("create", "get", "status", "reply");
+                    return Arrays.asList("create", "get", "reply");
                 }
             }
 

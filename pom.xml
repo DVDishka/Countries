@@ -6,7 +6,7 @@
 
     <groupId>dvdcraft</groupId>
     <artifactId>countries</artifactId>
-    <version>1.0</version>
+    <version>1.1</version>
     <packaging>jar</packaging>
 
     <name>Countries</name>
