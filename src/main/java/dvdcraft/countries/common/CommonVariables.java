@@ -1,6 +1,7 @@
 package dvdcraft.countries.common;
 
 import dvdcraft.countries.common.Classes.Country;
+import it.unimi.dsi.fastutil.Pair;
 import org.bukkit.Bukkit;
 import org.bukkit.scoreboard.Team;
 
@@ -15,6 +16,7 @@ public class CommonVariables {
     public static HashSet<Country> countries = new HashSet<>();
     public static HashMap<String, Team> teams = new HashMap<>();
     public static HashMap<String, Country> requests = new HashMap<>();
+    public static HashSet<Pair<Country, Country>> wars = new HashSet<>();
 
     public static void addTeam(String teamName) {
         if (Bukkit.getScoreboardManager().getMainScoreboard().getTeam(teamName) != null) {

@@ -8,7 +8,8 @@ import dvdcraft.countries.common.Classes.Country;
 import dvdcraft.countries.common.FileDir;
 import dvdcraft.countries.executorsHandlers.CommandExecutor;
 import dvdcraft.countries.executorsHandlers.CountryTabCompleter;
-import dvdcraft.countries.territoryCheckThread.Check;
+import dvdcraft.countries.Threads.TerritoryCheckProcess;
+import dvdcraft.countries.executorsHandlers.EventHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.command.TabCompleter;
@@ -61,9 +62,10 @@ public final class Countries extends JavaPlugin {
             CommonVariables.addTeam(country.getName());
         }
 
-        new Check("Check").start();
+        new TerritoryCheckProcess("Check").start();
         CommandExecutor commandExecutor = new CommandExecutor();
         TabCompleter TabCompleter = new CountryTabCompleter();
+        Bukkit.getPluginManager().registerEvents(new EventHandler(), this);
 
         PluginCommand countryCommand = getCommand("country");
 

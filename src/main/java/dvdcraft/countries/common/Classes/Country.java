@@ -143,6 +143,15 @@ public class Country implements Serializable {
         return null;
     }
 
+    public static Country getCountryByName(String name) {
+        for (Country country : CommonVariables.countries) {
+            if (country.getName().equals(name)) {
+                return country;
+            }
+        }
+        return null;
+    }
+
     public String getCountryLeader() {
         return this.leader;
     }

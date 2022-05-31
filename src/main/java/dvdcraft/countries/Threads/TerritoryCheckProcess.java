@@ -1,16 +1,15 @@
-package dvdcraft.countries.territoryCheckThread;
+package dvdcraft.countries.Threads;
 
 import dvdcraft.countries.common.CommonVariables;
 import dvdcraft.countries.common.Classes.Country;
 import dvdcraft.countries.common.Classes.Territory;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
-public class Check extends Thread {
+public class TerritoryCheckProcess extends Thread {
 
-    public Check(String name) {
+    public TerritoryCheckProcess(String name) {
         super(name);
     }
 

@@ -1,13 +1,19 @@
 package dvdcraft.countries.executorsHandlers;
 
+import dvdcraft.countries.Threads.TimerProcess;
 import dvdcraft.countries.common.CommonVariables;
 import dvdcraft.countries.common.Classes.Country;
 import dvdcraft.countries.common.Classes.Territory;
+import it.unimi.dsi.fastutil.Pair;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.boss.BarColor;
+import org.bukkit.boss.BarStyle;
+import org.bukkit.boss.BossBar;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.boss.BossBar;
 import org.jetbrains.annotations.NotNull;
 
 public class CommandExecutor implements org.bukkit.command.CommandExecutor {
@@ -351,7 +357,50 @@ public class CommandExecutor implements org.bukkit.command.CommandExecutor {
                 return true;
             }
         }
-        sender.sendMessage(ChatColor.RED + "Unknown command!");
+
+        if (commandName.equals("event") && args.length == 4 && args[1].equals("war")) {
+            Country country = Country.getCountry(player.getName());
+            Country oppositeCountry = Country.getCountryByName(args[2]);
+            if (country == null) {
+                sender.sendMessage(ChatColor.RED + "You are not in the country!");
+                return true;
+            }
+            if (!player.getName().equals(country.getCountryLeader())) {
+                sender.sendMessage(ChatColor.RED + "You are not the leader of the country!");
+                return true;
+            }
+            if (oppositeCountry == null) {
+                sender.sendMessage(ChatColor.RED + "There is no country with that name!");
+                return true;
+            }
+            int time = 0;
+            try {
+                time = Integer.parseInt(args[3]);
+            } catch (Exception e) {
+                sender.sendMessage(ChatColor.RED + "Time must be a number!");
+                return true;
+            }
+            int playersCounter = 0;
+            boolean isLeaderOnline = false;
+            for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+                if (Country.getCountry(onlinePlayer.getName()) == oppositeCountry) {
+                    playersCounter++;
+                    if (oppositeCountry.getCountryLeader().equals(onlinePlayer.getName())) {
+                        isLeaderOnline = true;
+                    }
+                }
+            }
+            if (!isLeaderOnline || playersCounter < 2) {
+                sender.sendMessage(ChatColor.RED + "There are too few members of opposite country!");
+                return true;
+            }
+            CommonVariables.wars.add(Pair.of(country, oppositeCountry));
+            time *= 3600;
+            Thread timerThread = new TimerProcess(time, country, oppositeCountry);
+            timerThread.start();
+            return true;
+        }
+        sender.sendMessage(ChatColor.RED + "Unknown command or invalid arguments!");
         return false;
     }
 }

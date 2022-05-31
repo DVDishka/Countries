@@ -38,13 +38,13 @@ public class CountryTabCompleter implements org.bukkit.command.TabCompleter {
                     return Arrays.asList("create", "get", "status", "leave");
                 }
                 if (flag == 1) {
-                    return Arrays.asList("create", "get", "status", "leave", "edit");
+                    return Arrays.asList("create", "get", "status", "leave", "edit", "event");
                 }
                 if (flag == 2) {
                     return Arrays.asList("create", "get", "status", "leave", "reply");
                 }
                 if (flag == 3) {
-                    return Arrays.asList("create", "get", "status", "leave", "edit", "reply");
+                    return Arrays.asList("create", "get", "status", "leave", "edit", "reply", "event");
                 }
                 if (flag == -3) {
                     return Arrays.asList("create", "get");
@@ -61,6 +61,8 @@ public class CountryTabCompleter implements org.bukkit.command.TabCompleter {
                     return Arrays.asList("countries");
                 } else if (args[0].equals("reply")) {
                     return Arrays.asList("yes", "no");
+                }else if (args[0].equals("event")) {
+                    return Arrays.asList("war");
                 } else {
                     return Arrays.asList("");
                 }
@@ -71,6 +73,14 @@ public class CountryTabCompleter implements org.bukkit.command.TabCompleter {
                     return Arrays.asList("add", "remove");
                 } else if (args[1].equals("color") || args[1].equals("leader")) {
                     return Arrays.asList("set");
+                } else if (args[1].equals("war")) {
+                    ArrayList<String> list = new ArrayList<>();
+                    for (Country country : CommonVariables.countries) {
+                        if (country != Country.getCountry(sender.getName())) {
+                            list.add(country.getName());
+                        }
+                    }
+                    return list;
                 } else {
                     return Arrays.asList("");
                 }
