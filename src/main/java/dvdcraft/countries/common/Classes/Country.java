@@ -4,6 +4,8 @@ import dvdcraft.countries.common.CommonVariables;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.Serializable;
 import java.util.HashSet;
@@ -12,7 +14,6 @@ public class Country implements Serializable {
     private String name;
     private String leader;
     private HashSet<String> members = new HashSet<>();
-    private HashSet<Territory> territories = new HashSet<>();
     private ChatColor chatColor;
 
     public Country(String name) {
@@ -23,11 +24,10 @@ public class Country implements Serializable {
         CommonVariables.teams.get(name).setPrefix(name + " ");
     }
 
-    public Country(String name, Player leader, HashSet<String> members, HashSet<Territory> territories, ChatColor chatColor) {
+    public Country(String name, Player leader, HashSet<String> members, ChatColor chatColor) {
         this.name = name;
         this.leader = leader.getName();
         this.members = members;
-        this.territories = territories;
         this.chatColor = chatColor;
     }
 
@@ -36,17 +36,9 @@ public class Country implements Serializable {
         CommonVariables.teams.get(this.name).addPlayer(Bukkit.getPlayer(name));
     }
 
-    public void addTerritory(Territory territory) {
-        this.territories.add(territory);
-    }
-
     public void removeMember(String name) {
         this.members.remove(name);
         CommonVariables.teams.get(this.name).removePlayer(Bukkit.getOfflinePlayer(name));
-    }
-
-    public void removeTerritory(Territory territory) {
-        this.territories.remove(territory);
     }
 
     public void setLeader(String leader) {
@@ -132,7 +124,8 @@ public class Country implements Serializable {
         return this.chatColor;
     }
 
-    public static Country getCountry(String player) {
+    @Contract(pure = true)
+    public static @Nullable Country getCountry(String player) {
         for (Country country : CommonVariables.countries) {
             for (String member : country.members) {
                 if (member.equals(player)) {
@@ -143,7 +136,7 @@ public class Country implements Serializable {
         return null;
     }
 
-    public static Country getCountryByName(String name) {
+    public static @Nullable Country getCountryByName(String name) {
         for (Country country : CommonVariables.countries) {
             if (country.getName().equals(name)) {
                 return country;
@@ -161,6 +154,12 @@ public class Country implements Serializable {
     }
 
     public HashSet<Territory> getTerritories() {
-        return this.territories;
+        HashSet<Territory> territories = new HashSet<>();
+        for (Owner owner : CommonVariables.owners.values()) {
+            if (Country.getCountry(owner.getName()) == this) {
+                territories.add(owner.getTerritory());
+            }
+        }
+        return territories;
     }
 }

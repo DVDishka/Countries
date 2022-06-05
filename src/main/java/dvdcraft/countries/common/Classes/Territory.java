@@ -1,5 +1,7 @@
 package dvdcraft.countries.common.Classes;
 
+import org.bukkit.OfflinePlayer;
+
 import java.io.Serializable;
 
 public class Territory implements Serializable {

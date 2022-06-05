@@ -1,5 +1,6 @@
 package dvdcraft.countries.Threads;
 
+import dvdcraft.countries.common.Classes.Owner;
 import dvdcraft.countries.common.CommonVariables;
 import dvdcraft.countries.common.Classes.Country;
 import dvdcraft.countries.common.Classes.Territory;
@@ -16,12 +17,17 @@ public class TerritoryCheckProcess extends Thread {
     public void run() {
         while (true) {
             for (Player player : Bukkit.getOnlinePlayers()) {
-                for (Country country : CommonVariables.countries) {
-                    for (Territory territory : country.getTerritories()) {
-                        Location location = player.getLocation();
-                        if (location.getBlockX() >= territory.getFromX() && location.getBlockX() <= territory.getToX() &&
-                                location.getBlockZ() >= territory.getFromZ() && location.getBlockZ() <= territory.getToZ()) {
-                            player.sendActionBar(country.getChatColor() + country.getName() + " territory");
+                for (Owner owner : CommonVariables.owners.values()) {
+                    Territory territory = owner.getTerritory();
+                    Location location = player.getLocation();
+                    Country country = Country.getCountry(owner.getName());
+                    if (location.getBlockX() >= territory.getFromX() && location.getBlockX() <= territory.getToX() &&
+                            location.getBlockZ() >= territory.getFromZ() && location.getBlockZ() <= territory.getToZ() &&
+                            location.getWorld() == Bukkit.getWorld("overworld")) {
+                        if (country != null) {
+                            player.sendActionBar(country.getChatColor() + country.getName() + " " + owner.getName());
+                        } else {
+                            player.sendActionBar(owner.getName());
                         }
                     }
                 }

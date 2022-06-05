@@ -35,41 +35,43 @@ public class CountryTabCompleter implements org.bukkit.command.TabCompleter {
                     flag -= 3;
                 }
                 if (flag == 0) {
-                    return Arrays.asList("create", "get", "status", "leave");
+                    return Arrays.asList("create", "get", "status", "leave", "territory");
                 }
                 if (flag == 1) {
-                    return Arrays.asList("create", "get", "status", "leave", "edit", "event");
+                    return Arrays.asList("create", "get", "status", "leave", "edit", "event", "territory");
                 }
                 if (flag == 2) {
-                    return Arrays.asList("create", "get", "status", "leave", "reply");
+                    return Arrays.asList("create", "get", "status", "leave", "reply", "territory");
                 }
                 if (flag == 3) {
-                    return Arrays.asList("create", "get", "status", "leave", "edit", "reply", "event");
+                    return Arrays.asList("create", "get", "status", "leave", "edit", "reply", "event", "territory");
                 }
                 if (flag == -3) {
-                    return Arrays.asList("create", "get");
+                    return Arrays.asList("create", "get", "territory");
                 }
                 if (flag == -1) {
-                    return Arrays.asList("create", "get", "reply");
+                    return Arrays.asList("create", "get", "reply", "territory");
                 }
             }
 
             if (args.length == 2) {
                 if (args[0].equals("edit")) {
-                    return Arrays.asList("color", "member", "territory", "delete", "leader");
+                    return Arrays.asList("color", "member", "delete", "leader", "friendlyFire");
                 } else if (args[0].equals("get")) {
                     return Arrays.asList("countries");
                 } else if (args[0].equals("reply")) {
                     return Arrays.asList("yes", "no");
-                }else if (args[0].equals("event")) {
+                } else if (args[0].equals("event")) {
                     return Arrays.asList("war");
+                }else if (args[0].equals("territory")) {
+                    return Arrays.asList("set", "get", "delete");
                 } else {
                     return Arrays.asList("");
                 }
             }
 
             if (args.length == 3) {
-                if (args[1].equals("territory") || args[1].equals("member")) {
+                if (args[1].equals("member")) {
                     return Arrays.asList("add", "remove");
                 } else if (args[1].equals("color") || args[1].equals("leader")) {
                     return Arrays.asList("set");
@@ -81,6 +83,8 @@ public class CountryTabCompleter implements org.bukkit.command.TabCompleter {
                         }
                     }
                     return list;
+                } else if (args[1].equals("friendlyFire")) {
+                    return Arrays.asList("enable", "disable");
                 } else {
                     return Arrays.asList("");
                 }
@@ -105,18 +109,6 @@ public class CountryTabCompleter implements org.bukkit.command.TabCompleter {
                         if (!member.equals(sender.getName())){
                             list.add(member);
                         }
-                    }
-                    return list;
-                } else if (args[1].equals("territory") && args[2].equals("remove")) {
-                    ArrayList<String> list = new ArrayList<>();
-                    Country country = Country.getCountry(sender.getName());
-                    if (country == null) {
-                        list.add("");
-                        return list;
-                    }
-                    for (Territory territory : country.getTerritories()) {
-                        list.add(String.valueOf(territory.getFromX()) + " " + String.valueOf(territory.getFromZ()) + " " +
-                                String.valueOf(territory.getToX()) + " " + String.valueOf(territory.getToZ()));
                     }
                     return list;
                 } else if (args[1].equals("color") && args[2].equals("set")) {

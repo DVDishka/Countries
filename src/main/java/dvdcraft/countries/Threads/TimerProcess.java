@@ -31,7 +31,8 @@ public class TimerProcess extends Thread {
         try {
             while (time > 0) {
                 for (Player player : Bukkit.getOnlinePlayers()) {
-                    if (!bossBar.getPlayers().contains(player)) {
+                    if (!bossBar.getPlayers().contains(player) && Country.getCountry(player.getName()) == this.country ||
+                            !bossBar.getPlayers().contains(player) && Country.getCountry(player.getName()) == this.oppositeCountry) {
                         bossBar.addPlayer(player);
                     }
                 }
@@ -40,22 +41,27 @@ public class TimerProcess extends Thread {
                 int seconds = time % 60;
                 bossBar.setTitle(hours + ":" + minutes + ":" + seconds);
                 time--;
-                sleep(1000);
+                //sleep(1000);
             }
         } catch (Exception e) {
             CommonVariables.logger.warning(ChatColor.RED + "Something went wrong in Timer Process");
         }
         bossBar.removeAll();
         Scoreboard scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
-        Objective objective = scoreboard.registerNewObjective("War", "dummy", "War");
+        Objective objective = scoreboard.registerNewObjective("War_" + country.getName() + "_vs_" + oppositeCountry.getName(),
+                "dummy", "War");
         objective.setDisplaySlot(DisplaySlot.SIDEBAR);
         for (String member : country.getMembers()) {
-            Score score = objective.getScore(Bukkit.getOfflinePlayer(member));
-            score.setScore(3);
+            if (Bukkit.getOfflinePlayer(member).isOnline()) {
+                Score score = objective.getScore(Bukkit.getOfflinePlayer(member));
+                score.setScore(3);
+            }
         }
         for (String member : oppositeCountry.getMembers()) {
-            Score score = objective.getScore(Bukkit.getOfflinePlayer(member));
-            score.setScore(3);
+            if (Bukkit.getOfflinePlayer(member).isOnline()) {
+                Score score = objective.getScore(Bukkit.getOfflinePlayer(member));
+                score.setScore(3);
+            }
         }
     }
 }
