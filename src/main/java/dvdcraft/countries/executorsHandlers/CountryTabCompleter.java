@@ -65,8 +65,10 @@ public class CountryTabCompleter implements org.bukkit.command.TabCompleter {
                     return Arrays.asList("war");
                 }else if (args[0].equals("territory")) {
                     return Arrays.asList("set", "get", "delete");
+                } else if (args[0].equals("create")) {
+                    return Arrays.asList("name");
                 } else {
-                    return Arrays.asList("");
+                    return Arrays.asList();
                 }
             }
 
@@ -85,8 +87,10 @@ public class CountryTabCompleter implements org.bukkit.command.TabCompleter {
                     return list;
                 } else if (args[1].equals("friendlyFire")) {
                     return Arrays.asList("enable", "disable");
+                } else if (args[0].equals("territory") && args[1].equals("set")) {
+                    return Arrays.asList("fromX");
                 } else {
-                    return Arrays.asList("");
+                    return Arrays.asList();
                 }
             }
             if (args.length == 4) {
@@ -98,27 +102,44 @@ public class CountryTabCompleter implements org.bukkit.command.TabCompleter {
                         }
                     }
                     return list;
+                } else if (args[1].equals("war")) {
+                    return Arrays.asList("time");
                 } else if (args[1].equals("member") && args[2].equals("remove")) {
                     ArrayList<String> list = new ArrayList<>();
                     Country country = Country.getCountry(sender.getName());
                     if (country == null) {
-                        list.add("");
                         return list;
                     }
                     for (String member : country.getMembers()) {
-                        if (!member.equals(sender.getName())){
+                        if (!member.equals(sender.getName())) {
                             list.add(member);
                         }
                     }
                     return list;
                 } else if (args[1].equals("color") && args[2].equals("set")) {
                     return Arrays.asList("RED", "BLUE", "BLACK", "AQUA", "GREEN", "WHITE", "YELLOW", "GRAY", "GOLD", "DARK_PURPLE", "LIGHT_PURPLE", "DARK_AQUA", "DARK_GREEN", "DARK_RED", "DARK_GRAY", "DARK_BLUE");
+                } else if (args[0].equals("territory") && args[1].equals("set")) {
+                    return Arrays.asList("fromZ");
                 } else {
-                    return Arrays.asList("");
+                    return Arrays.asList();
                 }
             }
-            if (args.length > 4) {
-                return Arrays.asList("");
+            if (args.length == 5) {
+                if (args[0].equals("territory") && args[1].equals("set")) {
+                    return Arrays.asList("toX");
+                } else {
+                    return Arrays.asList();
+                }
+            }
+            if (args.length == 6) {
+                if (args[0].equals("territory") && args[1].equals("set")) {
+                    return Arrays.asList("toZ");
+                } else {
+                    return Arrays.asList();
+                }
+            }
+            if (args.length >= 7) {
+                return Arrays.asList();
             }
         }
         return null;

@@ -4,7 +4,6 @@ import dvdcraft.countries.common.Classes.Country;
 import dvdcraft.countries.common.Classes.Owner;
 import it.unimi.dsi.fastutil.Pair;
 import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.scoreboard.Team;
 
 import java.util.HashMap;
@@ -14,6 +13,7 @@ import java.util.logging.Logger;
 import static org.bukkit.Bukkit.getLogger;
 
 public class CommonVariables {
+
     public static final Logger logger = getLogger();
     public static HashSet<Country> countries = new HashSet<>();
     public static HashMap<String, Team> teams = new HashMap<>();
