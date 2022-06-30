@@ -18,6 +18,8 @@ import org.bukkit.boss.BossBar;
 import org.checkerframework.checker.units.qual.C;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.HashSet;
+
 public class CommandExecutor implements org.bukkit.command.CommandExecutor {
 
     @Override
@@ -65,10 +67,12 @@ public class CommandExecutor implements org.bukkit.command.CommandExecutor {
                         sender.sendMessage(ChatColor.RED + "This player is already in the country!");
                         return true;
                     } else {
-                        for (Pair<Country, Country> countryPair : CommonVariables.wars) {
-                            if (countryPair.first() == country || countryPair.second() == country) {
-                                sender.sendMessage(ChatColor.RED + "You can not invite someone while your country is in the war!");
-                                return true;
+                        for (HashSet<Country> countryHashSet : CommonVariables.wars) {
+                            for (Country warCountry : countryHashSet) {
+                                if (warCountry == country) {
+                                    sender.sendMessage(ChatColor.RED + "You can not invite someone while your country is in the war!");
+                                    return true;
+                                }
                             }
                         }
                         sender.sendMessage(member.getName() + " has been invited to " + country.getName());
@@ -126,11 +130,13 @@ public class CommandExecutor implements org.bukkit.command.CommandExecutor {
                     answer += "\n";
                     answer += "Territories: ";
                     for (Territory territory : country.getTerritories()) {
-                        answer += "from X: " + territory.getFromX() +
-                                " Z: " + territory.getFromZ();
-                        answer += " to X: " + territory.getToX() +
-                                " Z: " + territory.getToZ();
-                        answer += "\n";
+                        if (!territory.isHidden()) {
+                            answer += "from X: " + territory.getFromX() +
+                                    " Z: " + territory.getFromZ();
+                            answer += " to X: " + territory.getToX() +
+                                    " Z: " + territory.getToZ();
+                            answer += "\n";
+                        }
                     }
                     sender.sendMessage(country.getChatColor() + answer);
                 }
@@ -156,11 +162,13 @@ public class CommandExecutor implements org.bukkit.command.CommandExecutor {
             answer += "\n";
             answer += "Territories: ";
             for (Territory territory : country.getTerritories()) {
-                answer += "from X: " + territory.getFromX() +
-                        " Z: " + territory.getFromZ();
-                answer += " to X: " + territory.getToX() +
-                        " Z: " + territory.getToZ();
-                answer += "\n";
+                if (!territory.isHidden()) {
+                    answer += "from X: " + territory.getFromX() +
+                            " Z: " + territory.getFromZ();
+                    answer += " to X: " + territory.getToX() +
+                            " Z: " + territory.getToZ();
+                    answer += "\n";
+                }
             }
             sender.sendMessage(country.getChatColor() + answer);
             return true;
@@ -206,7 +214,7 @@ public class CommandExecutor implements org.bukkit.command.CommandExecutor {
                     return true;
                 }
             }
-            Territory territory = new Territory(fromX, fromZ, toX, toZ);
+            Territory territory = new Territory(fromX, fromZ, toX, toZ, false);
             if (CommonVariables.owners.containsKey(player.getName())) {
                 Owner owner = CommonVariables.owners.get(player.getName());
                 owner.setTerritory(territory);
@@ -276,10 +284,12 @@ public class CommandExecutor implements org.bukkit.command.CommandExecutor {
                 sender.sendMessage(ChatColor.RED + "You are the leader of the country, so you need to set new leader before leaving!");
                 return true;
             }
-            for (Pair<Country, Country> countryPair : CommonVariables.wars) {
-                if (countryPair.first() == country || countryPair.second() == country) {
-                    sender.sendMessage(ChatColor.RED + "You can not leave while your country is in the war!");
-                    return true;
+            for (HashSet<Country> countryHashSet : CommonVariables.wars) {
+                for (Country warCountry : countryHashSet) {
+                    if (warCountry == country){
+                        sender.sendMessage(ChatColor.RED + "You can not leave while your country is in the war!");
+                        return true;
+                    }
                 }
             }
             country.removeMember(player.getName());
@@ -339,9 +349,9 @@ public class CommandExecutor implements org.bukkit.command.CommandExecutor {
             }
         }
 
-        if (commandName.equals("event") && args.length == 4 && args[1].equals("war")) {
+        if (commandName.equals("event") && args.length >= 4 && args[1].equals("war")) {
+            HashSet<Country> thisWarCountryHashSet = new HashSet<>();
             Country country = Country.getCountry(player.getName());
-            Country oppositeCountry = Country.getCountryByName(args[2]);
             if (country == null) {
                 sender.sendMessage(ChatColor.RED + "You are not in the country!");
                 return true;
@@ -350,13 +360,18 @@ public class CommandExecutor implements org.bukkit.command.CommandExecutor {
                 sender.sendMessage(ChatColor.RED + "You are not the leader of the country!");
                 return true;
             }
-            if (oppositeCountry == null) {
-                sender.sendMessage(ChatColor.RED + "There is no country with that name!");
-                return true;
+            thisWarCountryHashSet.add(Country.getCountry(player.getName()));
+            for (int i = 2; i < args.length - 1; i++) {
+                if (Country.getCountryByName(args[i]) != null) {
+                    thisWarCountryHashSet.add(Country.getCountryByName(args[i]));
+                } else {
+                    sender.sendMessage(ChatColor.RED + "There is no country with that name!");
+                    return true;
+                }
             }
             int time = 0;
             try {
-                time = Integer.parseInt(args[3]);
+                time = Integer.parseInt(args[args.length - 1]);
             } catch (Exception e) {
                 sender.sendMessage(ChatColor.RED + "Time must be a number!");
                 return true;
@@ -369,32 +384,35 @@ public class CommandExecutor implements org.bukkit.command.CommandExecutor {
                 sender.sendMessage(ChatColor.RED + "Time must be <= 10!");
                 return true;
             }
-            for (Pair<Country, Country> countryPair : CommonVariables.wars) {
-                if (countryPair.first() == country || countryPair.first() == oppositeCountry ||
-                countryPair.second() == country || countryPair.second() == oppositeCountry) {
-                    sender.sendMessage(ChatColor.RED + "Country is already in the war!");
-                    return true;
-                }
-            }
-            int playersCounter = 0;
-            boolean isLeaderOnline = false;
-            for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                if (Country.getCountry(onlinePlayer.getName()) == oppositeCountry) {
-                    playersCounter++;
-                    if (oppositeCountry.getCountryLeader().equals(onlinePlayer.getName())) {
-                        isLeaderOnline = true;
+            for (HashSet<Country> countryHashSet : CommonVariables.wars) {
+                for (Country warCountry : countryHashSet) {
+                    for (Country checkCountry : thisWarCountryHashSet) {
+                        if (warCountry == checkCountry) {
+                            sender.sendMessage(ChatColor.RED + "Country is already in the war!");
+                            return true;
+                        }
                     }
                 }
             }
-            /*
-            if (!isLeaderOnline || playersCounter < 2) {
-                sender.sendMessage(ChatColor.RED + "There are too few members of opposite country!");
-                return true;
+            for (Country warCountry : thisWarCountryHashSet) {
+                int playersCounter = 0;
+                boolean isLeaderOnline = false;
+                for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+                    if (Country.getCountry(onlinePlayer.getName()) == warCountry) {
+                        playersCounter++;
+                        if (warCountry.getCountryLeader().equals(onlinePlayer.getName())) {
+                            isLeaderOnline = true;
+                        }
+                    }
+                }
+                if (!isLeaderOnline) {
+                    sender.sendMessage(ChatColor.RED + "There are too few members of opposite country!");
+                    return true;
+                }
             }
-            */
-            CommonVariables.wars.add(Pair.of(country, oppositeCountry));
+            CommonVariables.wars.add(thisWarCountryHashSet);
             time *= 3600;
-            Thread timerThread = new TimerProcess(time, country, oppositeCountry);
+            Thread timerThread = new TimerProcess(time, thisWarCountryHashSet);
             timerThread.start();
             return true;
         }
@@ -442,6 +460,28 @@ public class CommandExecutor implements org.bukkit.command.CommandExecutor {
             }
             CommonVariables.teams.get(country.getName()).setAllowFriendlyFire(false);
             sender.sendMessage("Friendly fire has been disabled!");
+            return true;
+        }
+
+        if (commandName.equals("territory") && args.length == 4 && args[1].equals("edit") && args[2].equals("hidden") && args[3].equals("enable")) {
+            Territory territory = CommonVariables.owners.get(player.getName()).getTerritory();
+            if (territory == null) {
+                sender.sendMessage(ChatColor.RED + "You have no territory!");
+                return false;
+            }
+            territory.setHidden(true);
+            sender.sendMessage("Territory is hidden now!");
+            return true;
+        }
+
+        if (commandName.equals("territory") && args.length == 4 && args[1].equals("edit") && args[2].equals("hidden") && args[3].equals("disable")) {
+            Territory territory = CommonVariables.owners.get(player.getName()).getTerritory();
+            if (territory == null) {
+                sender.sendMessage(ChatColor.RED + "You have no territory!");
+                return false;
+            }
+            territory.setHidden(false);
+            sender.sendMessage("Territory is not hidden now!");
             return true;
         }
 

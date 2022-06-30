@@ -13,27 +13,31 @@ import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Score;
 import org.bukkit.scoreboard.Scoreboard;
 
+import java.util.HashSet;
+
 public class TimerProcess extends Thread {
 
     private int time;
-    private Country country;
-    private Country oppositeCountry;
+    private HashSet<Country> warCountries;
 
-    public TimerProcess(int time, Country country, Country oppositeCountry) {
+    public TimerProcess(int time, HashSet<Country> warCountries) {
         this.time = time;
-        this.country = country;
-        this.oppositeCountry = oppositeCountry;
+        this.warCountries = warCountries;
     }
 
     public void run() {
-        BossBar bossBar = Bukkit.getServer().createBossBar("", BarColor.RED, BarStyle.SOLID);
+
+        BossBar bossBar = Bukkit.getServer().createBossBar("", BarColor.RED, BarStyle.SEGMENTED_10);
         bossBar.setVisible(true);
+        final int fullTime = time;
+        int stage = 1;
         try {
             while (time > 0) {
                 for (Player player : Bukkit.getOnlinePlayers()) {
-                    if (!bossBar.getPlayers().contains(player) && Country.getCountry(player.getName()) == this.country ||
-                            !bossBar.getPlayers().contains(player) && Country.getCountry(player.getName()) == this.oppositeCountry) {
-                        bossBar.addPlayer(player);
+                    for (Country warCountry : warCountries) {
+                        if (!bossBar.getPlayers().contains(player) && Country.getCountry(player.getName()) == warCountry) {
+                            bossBar.addPlayer(player);
+                        }
                     }
                 }
                 int hours = time / 3600;
@@ -41,26 +45,32 @@ public class TimerProcess extends Thread {
                 int seconds = time % 60;
                 bossBar.setTitle(hours + ":" + minutes + ":" + seconds);
                 time--;
-                //sleep(1000);
+                if (time % (fullTime / 10) == 0) {
+                    if (stage >= 0.1) {
+                        stage -= 0.1;
+                        bossBar.setProgress(stage);
+                    }
+                }
+                sleep(1000);
             }
         } catch (Exception e) {
             CommonVariables.logger.warning(ChatColor.RED + "Something went wrong in Timer Process");
         }
         bossBar.removeAll();
         Scoreboard scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
-        Objective objective = scoreboard.registerNewObjective("War_" + country.getName() + "_vs_" + oppositeCountry.getName(),
-                "dummy", "War");
-        objective.setDisplaySlot(DisplaySlot.SIDEBAR);
-        for (String member : country.getMembers()) {
-            if (Bukkit.getOfflinePlayer(member).isOnline()) {
-                Score score = objective.getScore(Bukkit.getOfflinePlayer(member));
-                score.setScore(3);
-            }
+        String scoreboardName = "War_";
+        for (Country warCountry : warCountries) {
+            scoreboardName += warCountry.getName() + "_vs_";
         }
-        for (String member : oppositeCountry.getMembers()) {
-            if (Bukkit.getOfflinePlayer(member).isOnline()) {
-                Score score = objective.getScore(Bukkit.getOfflinePlayer(member));
-                score.setScore(3);
+        scoreboardName = scoreboardName.substring(0, scoreboardName.length() - 5);
+        Objective objective = scoreboard.registerNewObjective(scoreboardName, "dummy", "War");
+        objective.setDisplaySlot(DisplaySlot.SIDEBAR);
+        for (Country warCountry : warCountries) {
+            for (String member : warCountry.getMembers()) {
+                if (Bukkit.getOfflinePlayer(member).isOnline()) {
+                    Score score = objective.getScore(Bukkit.getOfflinePlayer(member));
+                    score.setScore(3);
+                }
             }
         }
     }

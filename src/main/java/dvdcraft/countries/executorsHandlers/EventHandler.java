@@ -14,83 +14,84 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Score;
 
+import java.util.HashSet;
+
 public class EventHandler implements Listener {
 
     @org.bukkit.event.EventHandler
     public void deathEvent(PlayerDeathEvent event) {
         Player player = event.getPlayer();
-        for (Pair<Country, Country> countryPair : CommonVariables.wars) {
-            if (Country.getCountry(player.getName()) == countryPair.first() ||
-            Country.getCountry(player.getName()) == countryPair.second()) {
-                try {
-                    Score score = Bukkit.getScoreboardManager().getMainScoreboard().getObjective("War_" + countryPair.first().getName() +
-                            "_vs_" + countryPair.second().getName()).getScore(player);
-                    score.setScore(score.getScore() - 1);
-                    if (score.getScore() == 0) {
-                        score.resetScore();
-                    }
-                    boolean flag = false;
-                    Objective objective = Bukkit.getScoreboardManager().getMainScoreboard().getObjective("War_" +
-                            countryPair.first().getName() + "_vs_" + countryPair.second().getName());
-                    for (String member : countryPair.first().getMembers()) {
-                        OfflinePlayer offlineMember = Bukkit.getOfflinePlayer(member);
-                        try {
-                            Score memberScore = objective.getScore(offlineMember);
-                            if (memberScore.getScore() != 0) {
-                                flag = true;
-                            }
-                        } catch (Exception e) {
-                            continue;
+        for (HashSet<Country> countryHashSet : CommonVariables.wars) {
+            for (Country warCountry : countryHashSet) {
+                if (Country.getCountry(player.getName()) == warCountry) {
+                    try {
+                        String scoreboardName = "War_";
+                        for (Country countryInWar : countryHashSet) {
+                            scoreboardName += countryInWar.getName() + "_vs_";
                         }
-                    }
-                    if (!flag) {
-                        for (String member : countryPair.first().getMembers()) {
-                            Player loosePlayer = Bukkit.getPlayer(member);
-                            if (loosePlayer != null) {
-                                loosePlayer.sendTitle(Title.builder().title(ChatColor.RED + "You Lose!").build());
+                        scoreboardName = scoreboardName.substring(0, scoreboardName.length() - 5);
+                        Score score = Bukkit.getScoreboardManager().getMainScoreboard().getObjective(scoreboardName)
+                                .getScore(player);
+                        score.setScore(score.getScore() - 1);
+                        if (score.getScore() == 0) {
+                            score.resetScore();
+                        }
+                        int liveCounryCounter = 0;
+                        Objective objective = Bukkit.getScoreboardManager().getMainScoreboard().getObjective(scoreboardName);
+                        for (Country country : countryHashSet) {
+                            boolean flag = false;
+                            for (String member : country.getMembers()) {
+                                OfflinePlayer offlineMember = Bukkit.getOfflinePlayer(member);
+                                Score memberScore = objective.getScore(offlineMember);
+                                try {
+                                    if (memberScore.getScore() > 0) {
+                                        flag = true;
+                                    }
+                                } catch (Exception ignored) {}
+                            }
+                            if (flag) {
+                                liveCounryCounter++;
+                            } else {
+                                for (String member : country.getMembers()) {
+                                    Player loosePlayer = Bukkit.getPlayer(member);
+                                    if (loosePlayer != null) {
+                                        loosePlayer.sendTitle(Title.builder().title(ChatColor.RED + "You Lose!").build());
+                                    }
+                                }
+                                return;
                             }
                         }
-                        for (String member : countryPair.second().getMembers()) {
-                            Player winPlayer = Bukkit.getPlayer(member);
-                            if (winPlayer != null) {
-                                winPlayer.sendTitle(Title.builder().title(ChatColor.GOLD + "You Won!").build());
+                        if (liveCounryCounter == 1) {
+                            for (Country country : countryHashSet) {
+                                boolean flag = false;
+                                for (String member : country.getMembers()) {
+                                    OfflinePlayer offlineMember = Bukkit.getOfflinePlayer(member);
+                                    try {
+                                        Score memberScore = objective.getScore(offlineMember);
+                                        if (memberScore.getScore() > 0) {
+                                            flag = true;
+                                            liveCounryCounter++;
+                                        }
+                                    } catch (Exception ignored) {}
+                                }
+                                if (flag) {
+                                    for (Country wonCountryCheck : countryHashSet)
+                                        for (String member : wonCountryCheck.getMembers()) {
+                                            Player loosePlayer = Bukkit.getPlayer(member);
+                                            if (loosePlayer != null) {
+                                                loosePlayer.sendTitle(Title.builder().title(ChatColor.RED + country.getName()
+                                                        + " Won!").build());
+                                            }
+                                        }
+                                    objective.unregister();
+                                    CommonVariables.wars.remove(countryHashSet);
+                                    return;
+                                }
                             }
                         }
-                        CommonVariables.wars.remove(countryPair);
-                        objective.unregister();
+                    } catch (Exception e) {
                         return;
                     }
-                    flag = false;
-                    for (String member : countryPair.second().getMembers()) {
-                        OfflinePlayer offlineMember = Bukkit.getOfflinePlayer(member);
-                        try {
-                            Score memberScore = objective.getScore(offlineMember);
-                            if (memberScore.getScore() != 0) {
-                                flag = true;
-                            }
-                        } catch (Exception e) {
-                            continue;
-                        }
-                    }
-                    if (!flag) {
-                        for (String member : countryPair.first().getMembers()) {
-                            Player loosePlayer = Bukkit.getPlayer(member);
-                            if (loosePlayer != null) {
-                                loosePlayer.sendTitle(Title.builder().title(ChatColor.GOLD + "You Won!").build());
-                            }
-                        }
-                        for (String member : countryPair.second().getMembers()) {
-                            Player winPlayer = Bukkit.getPlayer(member);
-                            if (winPlayer != null) {
-                                winPlayer.sendTitle(Title.builder().title(ChatColor.RED + "You Lose!").build());
-                            }
-                        }
-                        CommonVariables.wars.remove(countryPair);
-                        objective.unregister();
-                        return;
-                    }
-                } catch (Exception e) {
-                    return;
                 }
             }
         }
@@ -98,76 +99,75 @@ public class EventHandler implements Listener {
 
     @org.bukkit.event.EventHandler
     public void playerQuitEvent(PlayerQuitEvent event) {
-        for (Pair<Country, Country> countryPair : CommonVariables.wars) {
-            try {
-                if (Country.getCountry(event.getPlayer().getName()).getName().equals(countryPair.first().getName()) ||
-                        Country.getCountry(event.getPlayer().getName()).getName().equals(countryPair.second().getName())) {
-                    Score score = Bukkit.getScoreboardManager().getMainScoreboard().getObjective("War_" +
-                            countryPair.first().getName() + "_vs_" + countryPair.second().getName()).getScore(event.getPlayer());
-                    score.resetScore();
-                    boolean flag = false;
-                    Objective objective = Bukkit.getScoreboardManager().getMainScoreboard().getObjective("War_" +
-                            countryPair.first().getName() + "_vs_" + countryPair.second().getName());
-                    for (String member : countryPair.first().getMembers()) {
-                        OfflinePlayer offlineMember = Bukkit.getOfflinePlayer(member);
-                        try {
-                            Score memberScore = objective.getScore(offlineMember);
-                            if (memberScore.getScore() != 0) {
-                                flag = true;
+        for (HashSet<Country> countryHashSet : CommonVariables.wars) {
+            for (Country warCountry : countryHashSet) {
+                try {
+                    if (Country.getCountry(event.getPlayer().getName()).getName().equals(warCountry.getName())) {
+                        String scoreboardName = "War_";
+                        for (Country countryInWar : countryHashSet) {
+                            scoreboardName += countryInWar.getName() + "_vs_";
+                        }
+                        scoreboardName = scoreboardName.substring(0, scoreboardName.length() - 5);
+                        Objective objective = Bukkit.getScoreboardManager().getMainScoreboard().getObjective(scoreboardName);
+                        Score score = objective.getScore(event.getPlayer());
+                        score.resetScore();
+                        int liveCounryCounter = 0;
+                        for (Country country : countryHashSet) {
+                            boolean flag = false;
+                            for (String member : country.getMembers()) {
+                                OfflinePlayer offlineMember = Bukkit.getOfflinePlayer(member);
+                                Score memberScore = objective.getScore(offlineMember);
+                                try {
+                                    if (memberScore.getScore() > 0) {
+                                        flag = true;
+                                    }
+                                } catch (Exception e) {
+
+                                }
                             }
-                        } catch (Exception e) {
-                            continue;
+                            if (flag) {
+                                liveCounryCounter++;
+                            } else {
+                                for (String member : country.getMembers()) {
+                                    Player loosePlayer = Bukkit.getPlayer(member);
+                                    if (loosePlayer != null) {
+                                        loosePlayer.sendTitle(Title.builder().title(ChatColor.RED + "You Lose!").build());
+                                    }
+                                }
+                            }
+                        }
+                        if (liveCounryCounter == 1) {
+                            for (Country country : countryHashSet) {
+                                boolean flag = false;
+                                for (String member : country.getMembers()) {
+                                    OfflinePlayer offlineMember = Bukkit.getOfflinePlayer(member);
+                                    try {
+                                        Score memberScore = objective.getScore(offlineMember);
+                                        if (memberScore.getScore() != 0) {
+                                            flag = true;
+                                            liveCounryCounter++;
+                                        }
+                                    } catch (Exception e) {
+                                        continue;
+                                    }
+                                }
+                                if (flag) {
+                                    for (String member : country.getMembers()) {
+                                        Player loosePlayer = Bukkit.getPlayer(member);
+                                        if (loosePlayer != null) {
+                                            loosePlayer.sendTitle(Title.builder().title(ChatColor.RED + "You Won!").build());
+                                        }
+                                    }
+                                    objective.unregister();
+                                    CommonVariables.wars.remove(countryHashSet);
+                                    return;
+                                }
+                            }
                         }
                     }
-                    if (!flag) {
-                        for (String member : countryPair.first().getMembers()) {
-                            Player loosePlayer = Bukkit.getPlayer(member);
-                            if (loosePlayer != null) {
-                                loosePlayer.sendTitle(Title.builder().title(ChatColor.RED + "You Lose!").build());
-                            }
-                        }
-                        for (String member : countryPair.second().getMembers()) {
-                            Player winPlayer = Bukkit.getPlayer(member);
-                            if (winPlayer != null) {
-                                winPlayer.sendTitle(Title.builder().title(ChatColor.GOLD + "You Won!").build());
-                            }
-                        }
-                        CommonVariables.wars.remove(countryPair);
-                        objective.unregister();
-                        return;
-                    }
-                    flag = false;
-                    for (String member : countryPair.second().getMembers()) {
-                        OfflinePlayer offlineMember = Bukkit.getOfflinePlayer(member);
-                        try {
-                            Score memberScore = objective.getScore(offlineMember);
-                            if (memberScore.getScore() != 0) {
-                                flag = true;
-                            }
-                        } catch (Exception e) {
-                            continue;
-                        }
-                    }
-                    if (!flag) {
-                        for (String member : countryPair.first().getMembers()) {
-                            Player loosePlayer = Bukkit.getPlayer(member);
-                            if (loosePlayer != null) {
-                                loosePlayer.sendTitle(Title.builder().title(ChatColor.GOLD + "You Won!").build());
-                            }
-                        }
-                        for (String member : countryPair.second().getMembers()) {
-                            Player winPlayer = Bukkit.getPlayer(member);
-                            if (winPlayer != null) {
-                                winPlayer.sendTitle(Title.builder().title(ChatColor.RED + "You Lose!").build());
-                            }
-                        }
-                        CommonVariables.wars.remove(countryPair);
-                        objective.unregister();
-                        return;
-                    }
+                } catch (Exception e) {
+                    return;
                 }
-            } catch (Exception e) {
-                return;
             }
         }
     }

@@ -23,7 +23,7 @@ public class TerritoryCheckProcess extends Thread {
                     Country country = Country.getCountry(owner.getName());
                     if (location.getBlockX() >= territory.getFromX() && location.getBlockX() <= territory.getToX() &&
                             location.getBlockZ() >= territory.getFromZ() && location.getBlockZ() <= territory.getToZ() &&
-                            location.getWorld() == Bukkit.getWorld("overworld")) {
+                            location.getWorld() == Bukkit.getWorld("world")) {
                         if (country != null) {
                             player.sendActionBar(country.getChatColor() + country.getName() + " " + owner.getName());
                         } else {

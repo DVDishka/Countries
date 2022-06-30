@@ -64,7 +64,7 @@ public class CountryTabCompleter implements org.bukkit.command.TabCompleter {
                 } else if (args[0].equals("event")) {
                     return Arrays.asList("war");
                 }else if (args[0].equals("territory")) {
-                    return Arrays.asList("set", "get", "delete");
+                    return Arrays.asList("set", "get", "delete", "edit");
                 } else if (args[0].equals("create")) {
                     return Arrays.asList("name");
                 } else {
@@ -89,6 +89,8 @@ public class CountryTabCompleter implements org.bukkit.command.TabCompleter {
                     return Arrays.asList("enable", "disable");
                 } else if (args[0].equals("territory") && args[1].equals("set")) {
                     return Arrays.asList("fromX");
+                } else if (args[0].equals("territory") && args[1].equals("edit")) {
+                    return Arrays.asList("hidden");
                 } else {
                     return Arrays.asList();
                 }
@@ -103,7 +105,13 @@ public class CountryTabCompleter implements org.bukkit.command.TabCompleter {
                     }
                     return list;
                 } else if (args[1].equals("war")) {
-                    return Arrays.asList("time");
+                    ArrayList<String> list = new ArrayList<>();
+                    for (Country country : CommonVariables.countries) {
+                        if (country != Country.getCountry(sender.getName())) {
+                            list.add(country.getName());
+                        }
+                    }
+                    return list;
                 } else if (args[1].equals("member") && args[2].equals("remove")) {
                     ArrayList<String> list = new ArrayList<>();
                     Country country = Country.getCountry(sender.getName());
@@ -120,6 +128,8 @@ public class CountryTabCompleter implements org.bukkit.command.TabCompleter {
                     return Arrays.asList("RED", "BLUE", "BLACK", "AQUA", "GREEN", "WHITE", "YELLOW", "GRAY", "GOLD", "DARK_PURPLE", "LIGHT_PURPLE", "DARK_AQUA", "DARK_GREEN", "DARK_RED", "DARK_GRAY", "DARK_BLUE");
                 } else if (args[0].equals("territory") && args[1].equals("set")) {
                     return Arrays.asList("fromZ");
+                } else if (args[0].equals("territory") && args[1].equals("edit") && args[2].equals("hidden")) {
+                    return Arrays.asList("enable", "disable");
                 } else {
                     return Arrays.asList();
                 }
@@ -127,6 +137,14 @@ public class CountryTabCompleter implements org.bukkit.command.TabCompleter {
             if (args.length == 5) {
                 if (args[0].equals("territory") && args[1].equals("set")) {
                     return Arrays.asList("toX");
+                } else if (args[1].equals("war")) {
+                    ArrayList<String> list = new ArrayList<>();
+                    for (Country country : CommonVariables.countries) {
+                        if (country != Country.getCountry(sender.getName())) {
+                            list.add(country.getName());
+                        }
+                    }
+                    return list;
                 } else {
                     return Arrays.asList();
                 }
@@ -134,12 +152,30 @@ public class CountryTabCompleter implements org.bukkit.command.TabCompleter {
             if (args.length == 6) {
                 if (args[0].equals("territory") && args[1].equals("set")) {
                     return Arrays.asList("toZ");
+                } else if (args[1].equals("war")) {
+                    ArrayList<String> list = new ArrayList<>();
+                    for (Country country : CommonVariables.countries) {
+                        if (country != Country.getCountry(sender.getName())) {
+                            list.add(country.getName());
+                        }
+                    }
+                    return list;
                 } else {
                     return Arrays.asList();
                 }
             }
             if (args.length >= 7) {
-                return Arrays.asList();
+                if (args[1].equals("war")) {
+                    ArrayList<String> list = new ArrayList<>();
+                    for (Country country : CommonVariables.countries) {
+                        if (country != Country.getCountry(sender.getName())) {
+                            list.add(country.getName());
+                        }
+                    }
+                    return list;
+                } else {
+                    return Arrays.asList();
+                }
             }
         }
         return null;
