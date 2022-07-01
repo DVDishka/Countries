@@ -8,4 +8,4 @@ website: dvdcraft.ru
 prefix: Countries
 commands:
   country:
-    description: "Main command of Countries plugin"
+    description: Main command of Countries plugin
