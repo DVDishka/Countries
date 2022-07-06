@@ -51,7 +51,7 @@ public class TimerProcess extends Thread {
                         bossBar.setProgress(stage);
                     }
                 }
-                sleep(1000);
+                //sleep(1000);
             }
         } catch (Exception e) {
             CommonVariables.logger.warning(ChatColor.RED + "Something went wrong in Timer Process");

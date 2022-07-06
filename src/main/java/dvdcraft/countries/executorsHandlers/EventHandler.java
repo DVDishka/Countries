@@ -32,11 +32,13 @@ public class EventHandler implements Listener {
                         scoreboardName = scoreboardName.substring(0, scoreboardName.length() - 5);
                         Score score = Bukkit.getScoreboardManager().getMainScoreboard().getObjective(scoreboardName)
                                 .getScore(player);
-                        score.setScore(score.getScore() - 1);
+                        if (score.getScore() > 0) {
+                            score.setScore(score.getScore() - 1);
+                        }
                         if (score.getScore() == 0) {
                             score.resetScore();
                         }
-                        int liveCounryCounter = 0;
+                        int liveCountryCounter = 0;
                         Objective objective = Bukkit.getScoreboardManager().getMainScoreboard().getObjective(scoreboardName);
                         for (Country country : countryHashSet) {
                             boolean flag = false;
@@ -50,7 +52,7 @@ public class EventHandler implements Listener {
                                 } catch (Exception ignored) {}
                             }
                             if (flag) {
-                                liveCounryCounter++;
+                                liveCountryCounter++;
                             } else {
                                 for (String member : country.getMembers()) {
                                     Player loosePlayer = Bukkit.getPlayer(member);
@@ -58,10 +60,9 @@ public class EventHandler implements Listener {
                                         loosePlayer.sendTitle(Title.builder().title(ChatColor.RED + "You Lose!").build());
                                     }
                                 }
-                                return;
                             }
                         }
-                        if (liveCounryCounter == 1) {
+                        if (liveCountryCounter == 1) {
                             for (Country country : countryHashSet) {
                                 boolean flag = false;
                                 for (String member : country.getMembers()) {
@@ -70,7 +71,7 @@ public class EventHandler implements Listener {
                                         Score memberScore = objective.getScore(offlineMember);
                                         if (memberScore.getScore() > 0) {
                                             flag = true;
-                                            liveCounryCounter++;
+                                            liveCountryCounter++;
                                         }
                                     } catch (Exception ignored) {}
                                 }
