@@ -1,21 +1,16 @@
 package dvdcraft.countries.executorsHandlers;
 
+import com.destroystokyo.paper.Title;
 import dvdcraft.countries.Threads.TimerProcess;
 import dvdcraft.countries.common.Classes.Owner;
 import dvdcraft.countries.common.CommonVariables;
 import dvdcraft.countries.common.Classes.Country;
 import dvdcraft.countries.common.Classes.Territory;
-import it.unimi.dsi.fastutil.Pair;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.boss.BarColor;
-import org.bukkit.boss.BarStyle;
-import org.bukkit.boss.BossBar;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.boss.BossBar;
-import org.checkerframework.checker.units.qual.C;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashSet;
@@ -33,6 +28,7 @@ public class CommandExecutor implements org.bukkit.command.CommandExecutor {
         if (player == null) {
             CommonVariables.logger.warning("Something went wrong!");
         }
+
         if (commandName.equals("create") && args.length == 2) {
             if (Country.getCountry(player.getName()) != null) {
                 sender.sendMessage(ChatColor.RED + "If you are in the country you cannot create a new one!");
@@ -47,7 +43,8 @@ public class CommandExecutor implements org.bukkit.command.CommandExecutor {
             Country country = new Country(args[1]);
             country.addMember(player.getName());
             country.setLeader(player.getName());
-            sender.sendMessage("Country " + args[1] + " has been created!");
+            player.sendTitle(Title.builder().title(country.getChatColor() + country.getName()).subtitle(ChatColor.GOLD +
+                            "has been created").build());
             CommonVariables.countries.add(country);
             return true;
         }
@@ -76,6 +73,7 @@ public class CommandExecutor implements org.bukkit.command.CommandExecutor {
                             }
                         }
                         sender.sendMessage(member.getName() + " has been invited to " + country.getName());
+                        member.sendTitle(Title.builder().title(ChatColor.LIGHT_PURPLE + "New Invite").build());
                         member.sendMessage(country.getChatColor() + "You has been invited to " + country.getName() +
                                 " by " + player.getName() + " </country reply yes> or </country reply no>");
                         CommonVariables.requests.put(member.getName(), country);
@@ -99,7 +97,17 @@ public class CommandExecutor implements org.bukkit.command.CommandExecutor {
                     String leader = country.getCountryLeader();
                     if (leader.equals(player.getName())) {
                         country.removeMember(args[3]);
-                        sender.sendMessage(args[3] + " has been removed from " + country.getName());
+                        for (String member : country.getMembers()) {
+                            if (Bukkit.getPlayer(member) != null) {
+                                Bukkit.getPlayer(member).sendTitle(Title.builder().title(country.getChatColor() +
+                                        country.getName()).subtitle(ChatColor.RED + args[3] +
+                                        " has been kicked from " + country.getName()).build());
+                            }
+                        }
+                        if (Bukkit.getPlayer(args[3]) != null) {
+                            Bukkit.getPlayer(args[3]).sendTitle(Title.builder().title(country.getChatColor() + country.getName())
+                                    .subtitle(ChatColor.RED + "You has been kicked from " + country.getName()).build());
+                        }
                         return true;
                     } else {
                         sender.sendMessage(ChatColor.RED + "You are not the leader of the country!");
@@ -208,7 +216,9 @@ public class CommandExecutor implements org.bukkit.command.CommandExecutor {
                         checkTerritory.getFromX() >= fromX && checkTerritory.getFromX() <= toX &&
                         checkTerritory.getFromZ() >= fromZ && checkTerritory.getFromZ() <= toZ ||
                         checkTerritory.getToX() >= fromX && checkTerritory.getToX() <= toX &&
-                        checkTerritory.getToZ() >= fromZ && checkTerritory.getToZ() <= toZ) {
+                        checkTerritory.getToZ() >= fromZ && checkTerritory.getToZ() <= toZ &&
+
+                        !checkOwner.getName().equals(sender.getName())) {
 
                     sender.sendMessage(ChatColor.RED + "this territory belongs to another player");
                     return true;
@@ -222,14 +232,16 @@ public class CommandExecutor implements org.bukkit.command.CommandExecutor {
                 Owner owner = new Owner(player.getName(), territory);
                 CommonVariables.owners.put(player.getName(), owner);
             }
-            sender.sendMessage("Territory was added to your country");
+            player.sendTitle(Title.builder().title(ChatColor.GREEN + "Territory")
+                    .subtitle(ChatColor.GOLD + "has been set").build());
             return true;
         }
 
         if (commandName.equals("territory") && args.length == 2 && args[1].equals("delete")) {
             if (CommonVariables.owners.containsKey(player.getName())) {
                 CommonVariables.owners.remove(player.getName());
-                sender.sendMessage("Territory has been removed!");
+                player.sendTitle(Title.builder().title(ChatColor.GREEN + "Territory")
+                        .subtitle(ChatColor.RED + "has been deleted").build());
             } else {
                 sender.sendMessage(ChatColor.RED + "You have not any territory!");
             }
@@ -248,7 +260,12 @@ public class CommandExecutor implements org.bukkit.command.CommandExecutor {
             }
             String colorName = args[3];
             if (country.setColor(colorName)) {
-                sender.sendMessage("Country color has been set");
+                for (String member : country.getMembers()) {
+                    if (Bukkit.getPlayer(member) != null) {
+                        Bukkit.getPlayer(member).sendTitle(Title.builder().title(country.getChatColor() +
+                                country.getName()).subtitle(country.getChatColor() + "new color").build());
+                    }
+                }
             } else {
                 sender.sendMessage(ChatColor.RED + "Wrong color!");
             }
@@ -269,7 +286,13 @@ public class CommandExecutor implements org.bukkit.command.CommandExecutor {
             CommonVariables.teams.get(country.getName()).unregister();
             CommonVariables.teams.remove(country.getName());
             CommonVariables.countries.remove(country);
-            sender.sendMessage("Country was deleted!");
+            for (String member : country.getMembers()) {
+                Player memberPlayer = Bukkit.getPlayer(member);
+                if (memberPlayer != null) {
+                    memberPlayer.sendTitle(Title.builder().title(country.getChatColor() + country.getName())
+                            .subtitle(ChatColor.RED + "has been deleted").build());
+                }
+            }
             return true;
         }
 
@@ -281,7 +304,8 @@ public class CommandExecutor implements org.bukkit.command.CommandExecutor {
             }
             String leader = country.getCountryLeader();
             if (player.getName().equals(leader)) {
-                sender.sendMessage(ChatColor.RED + "You are the leader of the country, so you need to set new leader before leaving!");
+                sender.sendMessage(ChatColor.RED + "You are the leader of the country, so you need to set new leader" +
+                        " before leaving!");
                 return true;
             }
             for (HashSet<Country> countryHashSet : CommonVariables.wars) {
@@ -294,7 +318,15 @@ public class CommandExecutor implements org.bukkit.command.CommandExecutor {
             }
             country.removeMember(player.getName());
             CommonVariables.teams.get(country.getName()).removePlayer(Bukkit.getPlayer(player.getName()));
-            sender.sendMessage("You left the country!");
+            Bukkit.getPlayer(sender.getName()).sendTitle(Title.builder().title(country.getChatColor() +
+                    country.getName()).subtitle(ChatColor.RED + "you left " + country.getName()).build());
+            for (String member : country.getMembers()) {
+                Player memberPlayer = Bukkit.getPlayer(member);
+                if (memberPlayer != null && !memberPlayer.equals(player)) {
+                    memberPlayer.sendTitle(Title.builder().title(country.getChatColor() + country.getName())
+                            .subtitle(ChatColor.RED + player.getName() + " left " + country.getName()).build());
+                }
+            }
             return true;
         }
 
@@ -320,6 +352,14 @@ public class CommandExecutor implements org.bukkit.command.CommandExecutor {
                 return true;
             }
             country.setLeader(newLeaderPlayer.getName());
+            newLeaderPlayer.sendTitle(Title.builder().title(country.getChatColor() + country.getName())
+                    .subtitle(ChatColor.GOLD + "now you are " + country.getName() + " leader").build());
+            for (String member : country.getMembers()) {
+                if (Bukkit.getPlayer(member) != null) {
+                    Bukkit.getPlayer(member).sendTitle(Title.builder().title(country.getChatColor() + country.getName())
+                            .subtitle(ChatColor.GOLD + newLeaderCountry.getName() + " is leader now").build());
+                }
+            }
             sender.sendMessage("New leader has been set");
             return true;
         }
@@ -329,7 +369,8 @@ public class CommandExecutor implements org.bukkit.command.CommandExecutor {
                 Country request = CommonVariables.requests.get(player.getName());
                 CommonVariables.requests.remove(player.getName());
                 request.addMember(player.getName());
-                sender.sendMessage(request.getChatColor() + "You has been added to " + request.getName());
+                Bukkit.getPlayer(sender.getName()).sendTitle(Title.builder().title(ChatColor.LIGHT_PURPLE +
+                        "Invite").subtitle(ChatColor.GOLD + "now you are member of " + request.getName()).build());
                 return true;
             } catch (Exception e) {
                 sender.sendMessage(ChatColor.RED + "You have not any invitations!");
@@ -341,7 +382,8 @@ public class CommandExecutor implements org.bukkit.command.CommandExecutor {
             try {
                 Country request = CommonVariables.requests.get(player.getName());
                 CommonVariables.requests.remove(player.getName());
-                sender.sendMessage(request.getChatColor() + "You declined the invitation to " + request.getName());
+                Bukkit.getPlayer(sender.getName()).sendTitle(Title.builder().title(ChatColor.LIGHT_PURPLE +
+                        "Invite").subtitle(ChatColor.RED + "You declined the invitation").build());
                 return true;
             } catch (Exception e) {
                 sender.sendMessage(ChatColor.RED + "You have not any invitations!");
@@ -388,7 +430,7 @@ public class CommandExecutor implements org.bukkit.command.CommandExecutor {
                 for (Country warCountry : countryHashSet) {
                     for (Country checkCountry : thisWarCountryHashSet) {
                         if (warCountry == checkCountry) {
-                            sender.sendMessage(ChatColor.RED + "Country is already in the war!");
+                            sender.sendMessage(ChatColor.RED + checkCountry.getName() + " is already in the war!");
                             return true;
                         }
                     }
@@ -406,7 +448,7 @@ public class CommandExecutor implements org.bukkit.command.CommandExecutor {
                     }
                 }
                 if (!isLeaderOnline) {
-                    sender.sendMessage(ChatColor.RED + "There are too few members of opposite country!");
+                    sender.sendMessage(ChatColor.RED + "Leader of opposite country is offline!");
                     return true;
                 }
             }
@@ -414,6 +456,14 @@ public class CommandExecutor implements org.bukkit.command.CommandExecutor {
             time *= 3600;
             Thread timerThread = new TimerProcess(time, thisWarCountryHashSet);
             timerThread.start();
+            for (Country warCountry : thisWarCountryHashSet) {
+                for (String member : warCountry.getMembers()) {
+                    if (Bukkit.getPlayer(member) != null) {
+                        Bukkit.getPlayer(member).sendTitle(Title.builder().title(ChatColor.RED + "War")
+                                .subtitle(ChatColor.RED + country.getName() + "declared war").build());
+                    }
+                }
+            }
             return true;
         }
 
@@ -444,7 +494,12 @@ public class CommandExecutor implements org.bukkit.command.CommandExecutor {
                 return true;
             }
             CommonVariables.teams.get(country.getName()).setAllowFriendlyFire(true);
-            sender.sendMessage("Friendly fire has been enabled!");
+            for (String member : country.getMembers()) {
+                if (Bukkit.getPlayer(member) != null) {
+                    Bukkit.getPlayer(member).sendTitle(Title.builder().title(country.getChatColor() + country.getName())
+                            .subtitle(ChatColor.RED + "friendly fire has been enabled").build());
+                }
+            }
             return true;
         }
 
@@ -459,7 +514,12 @@ public class CommandExecutor implements org.bukkit.command.CommandExecutor {
                 return true;
             }
             CommonVariables.teams.get(country.getName()).setAllowFriendlyFire(false);
-            sender.sendMessage("Friendly fire has been disabled!");
+            for (String member : country.getMembers()) {
+                if (Bukkit.getPlayer(member) != null) {
+                    Bukkit.getPlayer(member).sendTitle(Title.builder().title(country.getChatColor() + country.getName())
+                            .subtitle(ChatColor.GOLD + "friendly fire has been disabled").build());
+                }
+            }
             return true;
         }
 
@@ -470,7 +530,8 @@ public class CommandExecutor implements org.bukkit.command.CommandExecutor {
                 return false;
             }
             territory.setHidden(true);
-            sender.sendMessage("Territory is hidden now!");
+            player.sendTitle(Title.builder().title(ChatColor.GREEN + "Territory")
+                    .subtitle(ChatColor.GOLD + "is hidden now").build());
             return true;
         }
 
@@ -481,7 +542,8 @@ public class CommandExecutor implements org.bukkit.command.CommandExecutor {
                 return false;
             }
             territory.setHidden(false);
-            sender.sendMessage("Territory is not hidden now!");
+            player.sendTitle(Title.builder().title(ChatColor.GREEN + "Territory")
+                    .subtitle(ChatColor.RED + "is not hidden now").build());
             return true;
         }
 
