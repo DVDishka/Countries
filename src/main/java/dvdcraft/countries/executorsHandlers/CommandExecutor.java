@@ -6,6 +6,12 @@ import dvdcraft.countries.common.Classes.Owner;
 import dvdcraft.countries.common.CommonVariables;
 import dvdcraft.countries.common.Classes.Country;
 import dvdcraft.countries.common.Classes.Territory;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextColor;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -13,6 +19,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.awt.*;
 import java.util.HashSet;
 
 public class CommandExecutor implements org.bukkit.command.CommandExecutor {
@@ -24,6 +31,27 @@ public class CommandExecutor implements org.bukkit.command.CommandExecutor {
             return false;
         }
         String commandName = args[0];
+
+        if (commandName.equals("reply") && args.length == 3 && args[1].equals("yes")) {
+            try {
+                Country request = CommonVariables.requests.get(args[2]);
+                CommonVariables.requests.remove(args[2]);
+                request.addMember(args[2]);
+                Bukkit.getPlayer(args[2]).sendTitle(Title.builder().title(ChatColor.LIGHT_PURPLE +
+                        "Invite").subtitle(ChatColor.GOLD + "now you are member of " + request.getName()).build());
+                for (String member : request.getMembers()) {
+                    Player memberPlayer = Bukkit.getPlayer(member);
+                    if (memberPlayer != null) {
+                        memberPlayer.sendTitle(Title.builder().title(request.getChatColor() + request.getName())
+                                .subtitle(ChatColor.GOLD + args[2] + " joined the country").build());
+                    }
+                }
+                return true;
+            } catch (Exception e) {
+                return true;
+            }
+        }
+
         Player player = Bukkit.getPlayer(sender.getName());
         if (player == null) {
             CommonVariables.logger.warning("Something went wrong!");
@@ -72,10 +100,22 @@ public class CommandExecutor implements org.bukkit.command.CommandExecutor {
                                 }
                             }
                         }
-                        sender.sendMessage(member.getName() + " has been invited to " + country.getName());
+
+                        BaseComponent[] component = new ComponentBuilder("You has been invited to " +
+                                country.getName() + "\n")
+                                .color(net.md_5.bungee.api.ChatColor.GOLD)
+                                .append("[ACCEPT]   ").
+                                color(net.md_5.bungee.api.ChatColor.GREEN)
+                                .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND,
+                                        "/country reply yes " + member.getName()))
+                                .append("[DECLINE]")
+                                .color(net.md_5.bungee.api.ChatColor.RED)
+                                .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND,
+                                        "/country reply no " + member.getName()))
+                                .create();
+
+                        member.sendMessage(component);
                         member.sendTitle(Title.builder().title(ChatColor.LIGHT_PURPLE + "New Invite").build());
-                        member.sendMessage(country.getChatColor() + "You has been invited to " + country.getName() +
-                                " by " + player.getName() + " </country reply yes> or </country reply no>");
                         CommonVariables.requests.put(member.getName(), country);
                         return true;
                     }
@@ -364,29 +404,17 @@ public class CommandExecutor implements org.bukkit.command.CommandExecutor {
             return true;
         }
 
-        if (commandName.equals("reply") && args.length == 2 && args[1].equals("yes")) {
+        if (commandName.equals("reply") && args.length == 3 && args[1].equals("no")) {
             try {
-                Country request = CommonVariables.requests.get(player.getName());
-                CommonVariables.requests.remove(player.getName());
-                request.addMember(player.getName());
-                Bukkit.getPlayer(sender.getName()).sendTitle(Title.builder().title(ChatColor.LIGHT_PURPLE +
-                        "Invite").subtitle(ChatColor.GOLD + "now you are member of " + request.getName()).build());
-                return true;
-            } catch (Exception e) {
-                sender.sendMessage(ChatColor.RED + "You have not any invitations!");
-                return true;
-            }
-        }
-
-        if (commandName.equals("reply") && args.length == 2 && args[1].equals("no")) {
-            try {
-                Country request = CommonVariables.requests.get(player.getName());
-                CommonVariables.requests.remove(player.getName());
-                Bukkit.getPlayer(sender.getName()).sendTitle(Title.builder().title(ChatColor.LIGHT_PURPLE +
+                Country request = CommonVariables.requests.get(args[2]);
+                if (request == null) {
+                    return true;
+                }
+                CommonVariables.requests.remove(args[2]);
+                Bukkit.getPlayer(args[2]).sendTitle(Title.builder().title(ChatColor.LIGHT_PURPLE +
                         "Invite").subtitle(ChatColor.RED + "You declined the invitation").build());
                 return true;
             } catch (Exception e) {
-                sender.sendMessage(ChatColor.RED + "You have not any invitations!");
                 return true;
             }
         }

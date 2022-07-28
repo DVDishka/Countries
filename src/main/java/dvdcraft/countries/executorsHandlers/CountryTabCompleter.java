@@ -28,9 +28,6 @@ public class CountryTabCompleter implements org.bukkit.command.TabCompleter {
                 if (country != null && country.getCountryLeader() != null && country.getCountryLeader().equals(player.getName())) {
                     flag = 1;
                 }
-                if (CommonVariables.requests.containsKey(player.getName())) {
-                    flag += 2;
-                }
                 if (country == null) {
                     flag -= 3;
                 }
@@ -40,17 +37,8 @@ public class CountryTabCompleter implements org.bukkit.command.TabCompleter {
                 if (flag == 1) {
                     return Arrays.asList("create", "get", "status", "leave", "edit", "event", "territory");
                 }
-                if (flag == 2) {
-                    return Arrays.asList("create", "get", "status", "leave", "reply", "territory");
-                }
-                if (flag == 3) {
-                    return Arrays.asList("create", "get", "status", "leave", "edit", "reply", "event", "territory");
-                }
                 if (flag == -3) {
                     return Arrays.asList("create", "get", "territory");
-                }
-                if (flag == -1) {
-                    return Arrays.asList("create", "get", "reply", "territory");
                 }
             }
 
@@ -59,8 +47,6 @@ public class CountryTabCompleter implements org.bukkit.command.TabCompleter {
                     return Arrays.asList("color", "member", "delete", "leader", "friendlyFire");
                 } else if (args[0].equals("get")) {
                     return Arrays.asList("countries");
-                } else if (args[0].equals("reply")) {
-                    return Arrays.asList("yes", "no");
                 } else if (args[0].equals("event")) {
                     return Arrays.asList("war");
                 }else if (args[0].equals("territory")) {
