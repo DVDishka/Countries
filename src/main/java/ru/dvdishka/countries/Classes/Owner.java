@@ -1,4 +1,4 @@
-package dvdcraft.countries.common.Classes;
+package ru.dvdishka.countries.Classes;
 
 public class Owner {
 

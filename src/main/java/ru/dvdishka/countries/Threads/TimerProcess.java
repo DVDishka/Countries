@@ -1,7 +1,7 @@
-package dvdcraft.countries.Threads;
+package ru.dvdishka.countries.Threads;
 
-import dvdcraft.countries.common.Classes.Country;
-import dvdcraft.countries.common.CommonVariables;
+import ru.dvdishka.countries.Classes.Country;
+import ru.dvdishka.countries.common.CommonVariables;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.boss.BarColor;
@@ -66,7 +66,7 @@ public class TimerProcess extends Thread {
         Objective objective = scoreboard.registerNewObjective(scoreboardName, "dummy", "War");
         objective.setDisplaySlot(DisplaySlot.SIDEBAR);
         for (Country warCountry : warCountries) {
-            for (String member : warCountry.getMembers()) {
+            for (String member : warCountry.getStringMembers()) {
                 if (Bukkit.getOfflinePlayer(member).isOnline()) {
                     Score score = objective.getScore(Bukkit.getOfflinePlayer(member));
                     score.setScore(3);

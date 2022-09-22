@@ -1,6 +1,6 @@
-package dvdcraft.countries.common.Classes;
+package ru.dvdishka.countries.Classes;
 
-import dvdcraft.countries.common.CommonVariables;
+import ru.dvdishka.countries.common.CommonVariables;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -8,13 +8,16 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashSet;
 
 public class Country implements Serializable {
+
     private String name;
     private String leader;
-    private HashSet<String> members = new HashSet<>();
+    private HashSet<Member> members = new HashSet<>();
     private ChatColor chatColor;
+    private ArrayList<Rank> ranks = new ArrayList<>();
 
     public Country(String name) {
         this.name = name;
@@ -27,18 +30,107 @@ public class Country implements Serializable {
     public Country(String name, Player leader, HashSet<String> members, ChatColor chatColor) {
         this.name = name;
         this.leader = leader.getName();
-        this.members = members;
+        for (String member : members) {
+            this.members.add(new Member(member));
+        }
         this.chatColor = chatColor;
     }
 
     public void addMember(String name) {
-        this.members.add(name);
+        this.members.add(new Member(name));
         CommonVariables.teams.get(this.name).addPlayer(Bukkit.getPlayer(name));
     }
 
+    public void addMember(Member member) {
+        this.members.add(member);
+        CommonVariables.teams.get(this.name).addPlayer(Bukkit.getPlayer(member.getName()));
+    }
+
     public void removeMember(String name) {
-        this.members.remove(name);
+        for (Member member : members) {
+            if (member.getName().equals(name)) {
+                members.remove(member);
+                break;
+            }
+        }
         CommonVariables.teams.get(this.name).removePlayer(Bukkit.getOfflinePlayer(name));
+    }
+
+    public void removeMember(Member member) {
+        this.members.remove(member);
+        CommonVariables.teams.get(this.name).removePlayer(Bukkit.getOfflinePlayer(member.getName()));
+    }
+
+    public void addRank(Rank rank) {
+        for (Rank checkRank : ranks) {
+            if (checkRank.getName().equals(rank.getName())) {
+                ranks.remove(checkRank);
+                break;
+            }
+        }
+        for (Member checkMember : members) {
+            if (checkMember.getRank() != null && checkMember.getRank().equals(rank.getName())) {
+                checkMember.setRank(rank);
+            }
+        }
+        ranks.add(rank);
+    }
+
+    public void removeRank(Rank rank) {
+
+        for (Member member : members) {
+
+            if (member.getRank() == rank) {
+
+                member.setRank(null);
+            }
+        }
+
+        ranks.remove(rank);
+    }
+
+    public void removeRank(String name) {
+
+        for (Member member : members) {
+
+            if (member.getRank() != null && member.getRank().getName().equals(name)) {
+
+                member.setRank(null);
+            }
+        }
+
+        for (Rank rank : ranks) {
+            if (rank.getName().equals(name)) {
+                ranks.remove(rank);
+                break;
+            }
+        }
+    }
+
+    public boolean containsRank(Rank rank) {
+        for (Rank countryRank : ranks) {
+            if (rank.getName().equals(countryRank.getName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean containsRank(String rank) {
+        for (Rank countryRank : ranks) {
+            if (rank.equals(countryRank.getName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean isLeader(Player player) {
+        return this.leader.equals(player.getName());
+    }
+
+    public boolean isLeader(String player) {
+        return this.leader.equals(player);
     }
 
     public void setLeader(String leader) {
@@ -116,6 +208,15 @@ public class Country implements Serializable {
         }
     }
 
+    public void setRank(String member, Rank rank) {
+
+        for (Member checkMember : members) {
+            if (checkMember.getName().equals(member)) {
+                checkMember.setRank(rank);
+            }
+        }
+    }
+
     public String getName() {
         return this.name;
     }
@@ -126,13 +227,19 @@ public class Country implements Serializable {
 
     @Contract(pure = true)
     public static @Nullable Country getCountry(String player) {
+
         for (Country country : CommonVariables.countries) {
-            for (String member : country.members) {
-                if (member.equals(player)) {
+
+            for (Member member : country.members) {
+
+                if (member.getName().equals(player)) {
                     return country;
                 }
+
             }
+
         }
+
         return null;
     }
 
@@ -149,7 +256,15 @@ public class Country implements Serializable {
         return this.leader;
     }
 
-    public HashSet<String> getMembers() {
+    public HashSet<String> getStringMembers() {
+        HashSet<String> stringMembers = new HashSet<>();
+        for (Member member : members) {
+            stringMembers.add(member.getName());
+        }
+        return stringMembers;
+    }
+
+    public HashSet<Member> getMembers() {
         return this.members;
     }
 
@@ -161,5 +276,38 @@ public class Country implements Serializable {
             }
         }
         return territories;
+    }
+
+    public ArrayList<Rank> getRanks() {
+        return this.ranks;
+    }
+
+    public Member getMember(String player) {
+        for (Member member : members) {
+            if (member.getName().equals(player)) {
+                return member;
+            }
+        }
+        return null;
+    }
+
+    public Member getMember(Player player) {
+        for (Member member : members) {
+            if (member.getName().equals(player.getName())) {
+                return member;
+            }
+        }
+        return null;
+    }
+
+    public Rank getRank(String rank) {
+
+        for (Rank checkRank : ranks) {
+            if (checkRank.getName().equals(rank)) {
+                return checkRank;
+            }
+        }
+
+        return null;
     }
 }

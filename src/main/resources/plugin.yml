@@ -1,7 +1,7 @@
 name: Countries
 version: '${project.version}'
-main: dvdcraft.countries.Countries
-api-version: 1.18
+main: ru.dvdishka.countries.Countries
+api-version: 1.16
 author: dvdishka
 description: Countries plugin
 website: dvdcraft.ru

@@ -1,4 +1,4 @@
-package dvdcraft.countries.common;
+package ru.dvdishka.countries.Functions;
 
 import java.io.File;
 

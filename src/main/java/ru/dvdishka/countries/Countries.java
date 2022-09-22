@@ -1,16 +1,19 @@
-package dvdcraft.countries;
+package ru.dvdishka.countries;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import dvdcraft.countries.common.Classes.Owner;
-import dvdcraft.countries.common.CommonVariables;
-import dvdcraft.countries.common.Classes.Country;
-import dvdcraft.countries.common.FileDir;
-import dvdcraft.countries.executorsHandlers.CommandExecutor;
-import dvdcraft.countries.executorsHandlers.CountryTabCompleter;
-import dvdcraft.countries.Threads.TerritoryCheckProcess;
-import dvdcraft.countries.executorsHandlers.EventHandler;
+import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import ru.dvdishka.countries.Classes.Owner;
+import ru.dvdishka.countries.common.CommonVariables;
+import ru.dvdishka.countries.Classes.Country;
+import ru.dvdishka.countries.Functions.FileDir;
+import ru.dvdishka.countries.executorsHandlers.CommandExecutor;
+import ru.dvdishka.countries.executorsHandlers.CountryTabCompleter;
+import ru.dvdishka.countries.Threads.TerritoryCheckProcess;
+import ru.dvdishka.countries.executorsHandlers.EventHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.command.TabCompleter;
@@ -91,6 +94,19 @@ public final class Countries extends JavaPlugin {
         } catch (Exception e) {
             CommonVariables.logger.warning("Can not read countries.json file!");
         }
+
+        ItemStack prevPage = new ItemStack(Material.ARROW);
+        ItemMeta prevPageMeta = prevPage.getItemMeta();
+        prevPageMeta.setDisplayName("<--");
+        prevPage.setItemMeta(prevPageMeta);
+
+        ItemStack nextPage = new ItemStack(Material.ARROW);
+        ItemMeta nextPageMeta = nextPage.getItemMeta();
+        nextPageMeta.setDisplayName("-->");
+        nextPage.setItemMeta(nextPageMeta);
+
+        CommonVariables.prevPage = prevPage;
+        CommonVariables.nextPage = nextPage;
 
         new TerritoryCheckProcess("Check").start();
         CommandExecutor commandExecutor = new CommandExecutor();

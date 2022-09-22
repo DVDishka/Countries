@@ -1,6 +1,4 @@
-package dvdcraft.countries.common.Classes;
-
-import org.bukkit.OfflinePlayer;
+package ru.dvdishka.countries.Classes;
 
 import java.io.Serializable;
 
