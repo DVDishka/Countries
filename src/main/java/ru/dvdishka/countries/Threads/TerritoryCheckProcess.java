@@ -36,7 +36,7 @@ public class TerritoryCheckProcess extends Thread {
                         if (country != null) {
 
                             player.spigot().sendMessage(ChatMessageType.ACTION_BAR,
-                                    TextComponent.fromLegacyText(country.getName() + " " + owner.getName(), country.getChatColor().asBungee()));
+                                    TextComponent.fromLegacyText(country.getChatColor() + country.getName() + " " + owner.getName()));
                         } else {
 
                             player.spigot().sendMessage(ChatMessageType.ACTION_BAR,

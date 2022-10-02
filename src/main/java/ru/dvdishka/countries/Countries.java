@@ -123,22 +123,34 @@ public final class Countries extends JavaPlugin {
 
     @Override
     public void onDisable() {
+
         try {
+
             File file = new File("plugins/Countries/countries.json");
             FileWriter fileWriter = new FileWriter(file);
+
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
+
             fileWriter.write(gson.toJson(CommonVariables.countries));
             fileWriter.close();
+
         } catch (Exception e) {
+
             CommonVariables.logger.warning("Can not write countries.json");
         }
+
         try {
+
             File file = new File("plugins/Countries/owners.json");
             FileWriter fileWriter = new FileWriter(file);
+
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
+
             fileWriter.write(gson.toJson(CommonVariables.owners));
             fileWriter.close();
+
         } catch (Exception e) {
+
             CommonVariables.logger.warning("Can not write owners.json");
         }
         CommonVariables.logger.info("Plugin has been disabled");
