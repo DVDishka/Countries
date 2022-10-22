@@ -69,7 +69,22 @@ public class Country implements Serializable {
             }
         }
         for (Member checkMember : members) {
-            if (checkMember.getRank() != null && checkMember.getRank().equals(rank.getName())) {
+            if (checkMember.getRank() != null && checkMember.getRank().getName().equals(rank.getName())) {
+                checkMember.setRank(rank);
+            }
+        }
+        ranks.add(rank);
+    }
+
+    public void updateRank(Rank rank) {
+        for (Rank checkRank : ranks) {
+            if (checkRank.getName().equals(rank.getName())) {
+                ranks.remove(checkRank);
+                break;
+            }
+        }
+        for (Member checkMember : members) {
+            if (checkMember.getRank() != null && checkMember.getRank().getName().equals(rank.getName())) {
                 checkMember.setRank(rank);
             }
         }

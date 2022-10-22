@@ -1,9 +1,9 @@
 package ru.dvdishka.countries.common;
 
-import org.bukkit.Material;
+import javafx.util.Pair;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import ru.dvdishka.countries.Classes.Country;
+import ru.dvdishka.countries.Classes.Member;
 import ru.dvdishka.countries.Classes.Owner;
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.Inventory;
@@ -28,6 +28,11 @@ public class CommonVariables {
     public static HashMap<String, Inventory> rankEdit = new HashMap<>();
     public static HashMap<String, ArrayList<Inventory>> memberMenu = new HashMap<>();
     public static HashMap<String, String> memberMenuRequest = new HashMap<>();
+    public static HashMap<String, ArrayList<Inventory>> rankMenu = new HashMap<>();
+    public static HashMap<String, String> rankMenuRequest = new HashMap<>();
+    public static ArrayList<Inventory> iconMenu = new ArrayList<>();
+    public static HashMap<String, Pair<String, String>> iconRankChoose = new HashMap<>();
+    public static HashMap<String, ArrayList<Inventory>> countryRankOwnersRequest = new HashMap<>();
 
     public static ItemStack prevPage;
     public static ItemStack nextPage;

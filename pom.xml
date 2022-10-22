@@ -6,7 +6,7 @@
 
     <groupId>dvdcraft</groupId>
     <artifactId>countries</artifactId>
-    <version>2.4.0 Snapshot 1</version>
+    <version>2.4.0 Snapshot 2</version>
     <packaging>jar</packaging>
 
     <name>Countries</name>
@@ -74,6 +74,11 @@
             <groupId>net.kyori</groupId>
             <artifactId>adventure-api</artifactId>
             <version>4.11.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-base</artifactId>
+            <version>19</version>
         </dependency>
     </dependencies>
 </project>

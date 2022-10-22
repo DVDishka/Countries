@@ -46,34 +46,57 @@ public class CountryTabCompleter implements org.bukkit.command.TabCompleter {
             }
 
             if (args.length == 2) {
+
                 if (args[0].equals("edit")) {
+
                     return Arrays.asList("color", "member", "delete", "leader", "friendlyFire", "rank");
+
                 } else if (args[0].equals("get")) {
-                    return Arrays.asList("countries", "members");
+
+                    return Arrays.asList("countries", "members", "ranks");
+
                 } else if (args[0].equals("territory")) {
+
                     return Arrays.asList("set", "get", "delete", "edit");
+
                 } else if (args[0].equals("create")) {
+
                     return Arrays.asList("name");
+
                 } else {
+
                     return Arrays.asList();
                 }
             }
 
             if (args.length == 3) {
+
                 if (args[1].equals("member")) {
+
                     return Arrays.asList("add", "remove", "rank");
+
                 } else if (args[1].equals("color") || args[1].equals("leader")) {
+
                     return Arrays.asList("set");
+
                 } else if (args[1].equals("war")) {
+
                     ArrayList<String> list = new ArrayList<>();
+
                     for (Country country : CommonVariables.countries) {
+
                         if (country != Country.getCountry(sender.getName())) {
+
                             list.add(country.getName());
                         }
                     }
+
                     return list;
+
                 } else if (args[1].equals("friendlyFire")) {
+
                     return Arrays.asList("enable", "disable");
+
                 } else if (args[1].equals("rank")) {
 
                     ArrayList<String> tabCompletions = new ArrayList<>();
@@ -105,10 +128,15 @@ public class CountryTabCompleter implements org.bukkit.command.TabCompleter {
                     return tabCompletions;
 
                 } else if (args[0].equals("territory") && args[1].equals("set")) {
+
                     return Arrays.asList("fromX");
+
                 } else if (args[0].equals("territory") && args[1].equals("edit")) {
+
                     return Arrays.asList("hidden");
-                } else if (args[0].equals("get") && args[1].equals("members")) {
+
+                } else if (args[0].equals("get") && args[1].equals("members") ||
+                        args[0].equals("get") && args[1].equals("ranks")) {
 
                     ArrayList<String> tabCompletions = new ArrayList<>();
 
@@ -130,33 +158,59 @@ public class CountryTabCompleter implements org.bukkit.command.TabCompleter {
             if (args.length == 4) {
 
                 if (args[1].equals("member") && args[2].equals("add") || args[1].equals("leader") && args[2].equals("set")) {
+
                     ArrayList<String> list = new ArrayList<>();
+
                     for (Player player : Bukkit.getOnlinePlayers()) {
+
                         if (!player.getName().equals(sender.getName())) {
+
                             list.add(player.getName());
                         }
                     }
                     return list;
+
                 } else if (args[1].equals("member") && args[2].equals("rank")) {
+
                     return null;
+
                 } else if (args[1].equals("member") && args[2].equals("remove")) {
+
                     ArrayList<String> list = new ArrayList<>();
                     Country country = Country.getCountry(sender.getName());
+
                     if (country == null) {
+
                         return list;
                     }
+
                     for (String member : country.getStringMembers()) {
+
                         if (!member.equals(sender.getName())) {
+
                             list.add(member);
                         }
                     }
+
                     return list;
+
                 } else if (args[1].equals("color") && args[2].equals("set")) {
+
                     return Arrays.asList("RED", "BLUE", "BLACK", "AQUA", "GREEN", "WHITE", "YELLOW", "GRAY", "GOLD", "DARK_PURPLE", "LIGHT_PURPLE", "DARK_AQUA", "DARK_GREEN", "DARK_RED", "DARK_GRAY", "DARK_BLUE");
+
                 } else if (args[0].equals("territory") && args[1].equals("set")) {
+
                     return Arrays.asList("fromZ");
+
                 } else if (args[0].equals("edit") && args[1].equals("rank") && args[2].equals("create")) {
+
                     return Arrays.asList("rankName");
+
+                } else if (args[0].equals("edit") && args[1].equals("rank") && !args[2].equals("create") &&
+                        !args[2].equals("remove")) {
+
+                    return Arrays.asList("icon", "priority");
+
                 } else if (args[0].equals("edit") && args[1].equals("rank") && args[2].equals("remove")) {
 
                     ArrayList<String> tabCompletions = new ArrayList<>();
@@ -183,22 +237,38 @@ public class CountryTabCompleter implements org.bukkit.command.TabCompleter {
                     return tabCompletions;
 
                 } else if (args[0].equals("territory") && args[1].equals("edit") && args[2].equals("hidden")) {
+
                     return Arrays.asList("enable", "disable");
+
                 } else {
+
                     return Arrays.asList();
                 }
             }
             if (args.length == 5) {
+
                 if (args[0].equals("territory") && args[1].equals("set")) {
+
                     return Arrays.asList("toX");
+
                 } else if (args[1].equals("war")) {
+
                     ArrayList<String> list = new ArrayList<>();
+
                     for (Country country : CommonVariables.countries) {
+
                         if (country != Country.getCountry(sender.getName())) {
+
                             list.add(country.getName());
                         }
                     }
+
                     return list;
+
+                } else if (args[0].equals("edit") && args[1].equals("rank") && args[3].equals("priority")) {
+
+                    return Arrays.asList("<priority>");
+
                 } else if (args[1].equals("member") && args[2].equals("rank")) {
 
                     ArrayList<String> tabCompletions = new ArrayList<>();

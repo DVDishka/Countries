@@ -1,12 +1,9 @@
 package ru.dvdishka.countries.executorsHandlers;
 
-import org.bukkit.entity.Item;
+import javafx.util.Pair;
 import org.bukkit.inventory.meta.SkullMeta;
 import ru.dvdishka.countries.Threads.TimerProcess;
 import ru.dvdishka.countries.common.CommonVariables;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.TextColor;
-import net.kyori.adventure.text.format.TextDecoration;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
@@ -23,11 +20,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import ru.dvdishka.countries.Classes.*;
 
-import java.awt.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 public class CommandExecutor implements org.bukkit.command.CommandExecutor {
 
@@ -191,8 +184,18 @@ public class CommandExecutor implements org.bukkit.command.CommandExecutor {
                 } else {
 
                     Member senderMember = senderCountry.getMember(senderPlayer.getName());
+                    Member memberMember = memberCountry.getMember(args[3]);
 
                     if (senderMember.hasPermission(Permission.REMOVE_MEMBER)) {
+
+                        if (senderMember.getRank() == null ||
+                                memberMember.getRank() != null &&
+                                        !senderMember.getRank().getPermissions()
+                                                .containsAll(memberMember.getRank().getPermissions())) {
+
+                            sender.sendMessage(ChatColor.RED + "Your rank is lower than " + args[3] + "`s rank!");
+                            return false;
+                        }
 
                         senderCountry.removeMember(args[3]);
 
@@ -895,6 +898,15 @@ public class CommandExecutor implements org.bukkit.command.CommandExecutor {
                 return false;
             }
 
+            Member senderMember = senderCountry.getMember(senderPlayer);
+
+            if (!senderCountry.isLeader(senderPlayer) && senderMember.getRank() == null ||
+                    !senderCountry.isLeader(senderPlayer) && senderMember.getRank().getPriority() <= rank.getPriority()) {
+
+                sender.sendMessage(ChatColor.RED + "You can not edit a rank that has higher or equal priority!");
+                return false;
+            }
+
             Inventory permissionMenu = Bukkit.createInventory(null, Permission.values().length, rankName);
 
             int index = 0;
@@ -959,10 +971,10 @@ public class CommandExecutor implements org.bukkit.command.CommandExecutor {
                 return false;
             }
 
-            if (!senderCountry.isLeader(senderPlayer) && senderMember.getRank() != null &&
-                    !senderMember.getRank().getPermissions().containsAll(removeRank.getPermissions())) {
+            if (!senderCountry.isLeader(senderPlayer) && senderMember.getRank() == null ||
+                    !senderCountry.isLeader(senderPlayer) && senderMember.getRank().getPriority() <= removeRank.getPriority()) {
 
-                sender.sendMessage(ChatColor.RED + "The rank you want to remove has more permissions than yours!");
+                sender.sendMessage(ChatColor.RED + "You can not remove a rank that has higher or equal priority!");
                 return false;
             }
 
@@ -970,6 +982,131 @@ public class CommandExecutor implements org.bukkit.command.CommandExecutor {
 
             senderPlayer.sendTitle(senderCountry.getChatColor() + senderCountry.getName(),
                     ChatColor.RED + "Rank " + removeRank.getName() + " has been removed");
+
+            return true;
+        }
+
+        if (commandName.equals("edit") && args.length == 4 && args[1].equals("rank") && args[3].equals("icon")) {
+
+            Country senderCountry = Country.getCountry(senderPlayer.getName());
+
+            if (senderCountry == null) {
+
+                sender.sendMessage(ChatColor.RED + "You are not in the country!");
+                return false;
+            }
+
+            Member senderMember = senderCountry.getMember(senderPlayer);
+
+            if (!senderMember.hasPermission(Permission.EDIT_RANK)) {
+
+                sender.sendMessage(ChatColor.RED + "You do not have permission to edit rank!");
+                return false;
+            }
+
+            Rank editRank = senderCountry.getRank(args[2]);
+
+            if (editRank == null) {
+
+                sender.sendMessage(ChatColor.RED + "There is no rank with that name!");
+                return false;
+            }
+
+            if (!senderCountry.isLeader(senderPlayer) && senderMember.getRank() == null ||
+                    !senderCountry.isLeader(senderPlayer) && senderMember.getRank().getPriority() <= editRank.getPriority()) {
+
+                sender.sendMessage(ChatColor.RED + "You can not edit a rank that has higher or equal priority!");
+                return false;
+            }
+
+            int iconsAmount = Material.values().length - 2;
+            if (iconsAmount == 0) {
+                sender.sendMessage(ChatColor.RED + "There are no icons yet");
+                return false;
+            }
+
+            ArrayList<Inventory> icons = new ArrayList<>();
+
+            int i = 1;
+            while (iconsAmount > 0) {
+
+                Inventory page = Bukkit.createInventory(null, 54, ChatColor.GOLD + "Rank icons " + i);
+
+                page.setItem(45, CommonVariables.prevPage);
+                page.setItem(53, CommonVariables.nextPage);
+                icons.add(page);
+                iconsAmount -= 52;
+                i++;
+            }
+
+            int stackIndex = 0;
+            int inventoryIndex = 0;
+
+            for (Material icon : Material.values()) {
+                if (!icon.equals(Material.LIGHT_GRAY_STAINED_GLASS_PANE) && !icon.equals(Material.AIR)) {
+
+                    if (stackIndex == 45) {
+
+                        stackIndex++;
+                    }
+
+                    if (stackIndex == 53) {
+
+                        stackIndex = 0;
+                        inventoryIndex++;
+                    }
+
+                    icons.get(inventoryIndex).setItem(stackIndex, new ItemStack(icon));
+                    stackIndex++;
+
+                    if (icons.get(inventoryIndex).getItem(stackIndex - 1) == null) {
+                        stackIndex--;
+                    }
+                }
+            }
+
+            int pagesAmount = icons.size();
+
+            for (int page = 0; page < pagesAmount; page++) {
+
+                boolean isClear = true;
+
+                for (ItemStack item : icons.get(page)) {
+
+                    if (item != null && !item.equals(CommonVariables.nextPage) && !item.equals(CommonVariables.prevPage)) {
+
+                        isClear = false;
+                        break;
+                    }
+                }
+                if (isClear) {
+
+                    icons.remove(page);
+
+                    pagesAmount--;
+                    page--;
+                }
+            }
+
+            stackIndex = 0;
+
+            Inventory lastPage = icons.get(icons.size() - 1);
+
+            for (ItemStack itemStack : lastPage) {
+
+                if (itemStack == null) {
+
+                    lastPage.setItem(stackIndex, new ItemStack(Material.LIGHT_GRAY_STAINED_GLASS_PANE));
+                }
+
+                stackIndex++;
+            }
+
+            icons.set(icons.size() - 1, lastPage);
+            senderPlayer.openInventory(icons.get(0));
+
+            CommonVariables.iconMenu = icons;
+            CommonVariables.iconRankChoose.put(senderPlayer.getName(), new Pair<>(senderCountry.getName(), editRank.getName()));
 
             return true;
         }
@@ -993,7 +1130,55 @@ public class CommandExecutor implements org.bukkit.command.CommandExecutor {
             Inventory memberMenu = Bukkit.createInventory(null, 54,
                     ChatColor.GOLD + country.getName() + " " + 1);
 
-            for (Member member : country.getMembers()) {
+            ArrayList<Member> countryMembers = new ArrayList<>(country.getMembers());
+
+            for (int i = 0; i < countryMembers.size(); i++) {
+
+                for (int j = i; j < countryMembers.size(); j++) {
+
+                    int firstMemberPriority;
+                    int secondMemberPriority;
+
+                    if (countryMembers.get(i).getRank() == null) {
+
+                        firstMemberPriority = 0;
+
+                    } else {
+
+                        firstMemberPriority = countryMembers.get(i).getRank().getPriority();
+                    }
+
+                    if (countryMembers.get(j).getRank() == null) {
+
+                        secondMemberPriority = 0;
+
+                    } else {
+
+                        secondMemberPriority = countryMembers.get(j).getRank().getPriority();
+                    }
+
+                    if (firstMemberPriority < secondMemberPriority) {
+
+                        Collections.swap(countryMembers, i, j);
+
+                    } else if (firstMemberPriority == secondMemberPriority) {
+
+                        if (countryMembers.get(i).getRank() == null || countryMembers.get(j).getRank() == null) {
+
+                            Collections.swap(countryMembers, i, j);
+
+                        } else {
+
+                            if (countryMembers.get(i).getRank().getName().compareTo(countryMembers.get(j).getName()) > 0) {
+
+                                Collections.swap(countryMembers, i, j);
+                            }
+                        }
+                    }
+                }
+            }
+
+            for (Member member : countryMembers) {
 
                 memberAmount--;
 
@@ -1015,14 +1200,14 @@ public class CommandExecutor implements org.bukkit.command.CommandExecutor {
 
                 playerHead.setItemMeta(playerHeadMeta);
 
-                memberMenu.setItem(memberIndex - 1, playerHead);
-                memberIndex++;
-
                 if (memberIndex == 46) {
 
                     memberIndex++;
                     memberAmount++;
                 }
+
+                memberMenu.setItem(memberIndex - 1, playerHead);
+                memberIndex++;
 
                 if (memberIndex == 54 || memberAmount <= 0) {
 
@@ -1053,6 +1238,163 @@ public class CommandExecutor implements org.bukkit.command.CommandExecutor {
             CommonVariables.memberMenuRequest.put(senderPlayer.getName(), country.getName());
 
             senderPlayer.openInventory(memberMenus.get(0));
+
+            return true;
+        }
+
+        if (commandName.equals("get") && args.length == 3 && args[1].equals("ranks")) {
+
+            Country country = Country.getCountryByName(args[2]);
+
+            if (country == null) {
+
+                sender.sendMessage(ChatColor.RED + "There is no country with that name!");
+                return false;
+            }
+
+            ArrayList<Rank> countryRanks = country.getRanks();
+
+            if (countryRanks.size() == 0) {
+
+                sender.sendMessage(ChatColor.RED + "This country has no ranks!");
+                return false;
+            }
+
+            for (int i = 0; i < countryRanks.size(); i++) {
+
+                for (int j = i; j < countryRanks.size(); j++) {
+
+                    if (countryRanks.get(i).getPriority() < countryRanks.get(j).getPriority()) {
+
+                        Collections.swap(countryRanks, i, j);
+
+                    } else if (countryRanks.get(i).getPriority() == countryRanks.get(j).getPriority() &&
+                            countryRanks.get(i).getName().compareTo(countryRanks.get(j).getName()) > 0) {
+
+                        Collections.swap(countryRanks, i, j);
+                    }
+                }
+            }
+
+            ArrayList<Inventory> rankMenus = new ArrayList<>();
+
+            int rankAmount = country.getRanks().size();
+            int pageCounter = 1;
+            int rankIndex = 1;
+
+            Inventory rankMenu = Bukkit.createInventory(null, 54,
+                    ChatColor.GOLD + country.getName() + " ranks " + 1);
+
+            for (Rank rank : countryRanks) {
+
+                rankAmount--;
+
+                if (rank.getIcon() == null) {
+
+                    rank.setIcon("BARRIER");
+                }
+
+                ItemStack icon = new ItemStack(Material.valueOf(rank.getIcon()));
+                ItemMeta iconMeta = icon.getItemMeta();
+
+                iconMeta.setDisplayName(rank.getName());
+
+                iconMeta.setLore(Arrays.asList(ChatColor.LIGHT_PURPLE + "Priority: " + rank.getPriority()));
+
+                icon.setItemMeta(iconMeta);
+
+                rankMenu.setItem(rankIndex - 1, icon);
+                rankIndex++;
+
+                if (rankIndex == 46) {
+
+                    rankIndex++;
+                    rankAmount++;
+                }
+
+                if (rankIndex == 54 || rankAmount <= 0) {
+
+                    rankMenu.setItem(45, CommonVariables.prevPage);
+                    rankMenu.setItem(53, CommonVariables.nextPage);
+
+                    rankIndex = 1;
+                    pageCounter++;
+                    rankMenus.add(rankMenu);
+                    rankMenu = Bukkit.createInventory(null, 54,
+                            ChatColor.GOLD + country.getName() + " ranks " + pageCounter);
+                }
+            }
+
+            int itemIndex = 0;
+
+            for (ItemStack item : rankMenus.get(rankMenus.size() - 1)) {
+
+                if (item == null) {
+
+                    rankMenus.get(rankMenus.size() - 1).setItem(itemIndex, new ItemStack(Material.LIGHT_GRAY_STAINED_GLASS_PANE));
+                }
+
+                itemIndex++;
+            }
+
+            CommonVariables.rankMenu.put(country.getName(), rankMenus);
+            CommonVariables.rankMenuRequest.put(senderPlayer.getName(), country.getName());
+
+            senderPlayer.openInventory(rankMenus.get(0));
+
+            return true;
+        }
+
+        if (commandName.equals("edit") && args.length == 5 && args[1].equals("rank") && args[3].equals("priority")) {
+
+            Country senderCountry = Country.getCountry(senderPlayer.getName());
+
+            if (senderCountry == null) {
+
+                senderPlayer.sendMessage(ChatColor.RED + "You are not in the country");
+                return false;
+            }
+
+            Member senderMember = senderCountry.getMember(senderPlayer);
+            Rank editRank = senderCountry.getRank(args[2]);
+
+            if (editRank == null) {
+
+                sender.sendMessage(ChatColor.RED + "There is no rank with that name!");
+                return false;
+            }
+
+            if (!senderMember.hasPermission(Permission.EDIT_RANK)) {
+
+                sender.sendMessage(ChatColor.RED + "You do not have permission to edit rank!");
+                return false;
+            }
+
+            if (!senderCountry.isLeader(senderPlayer) && senderMember.getRank() == null ||
+                    !senderCountry.isLeader(senderPlayer) && senderMember.getRank().getPriority() <= editRank.getPriority()) {
+
+                sender.sendMessage(ChatColor.RED + "You can not edit a rank that has higher or equal priority!");
+                return false;
+            }
+
+            int newPriority;
+
+            try {
+
+                newPriority = Integer.parseInt(args[4]);
+
+            } catch (Exception e) {
+
+                sender.sendMessage(ChatColor.RED + "Priority must be a number!");
+                return false;
+            }
+
+            senderCountry.getRank(args[2]).setPriority(newPriority);
+
+            senderCountry.updateRank(senderCountry.getRank(args[2]));
+
+            senderPlayer.sendTitle(senderCountry.getChatColor() + senderCountry.getName(),
+                    ChatColor.GOLD + String.valueOf(newPriority) + " priority has been set to rank " + editRank.getName());
 
             return true;
         }
